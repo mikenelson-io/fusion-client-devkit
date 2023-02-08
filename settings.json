@@ -1,5 +1,5 @@
 {
-    "id": "Fusion-DevKit",
+    "id": "fusion-client-devkit",
     "name": "Pure Fusion Client DevKit",
     "filter": "devops",
     "image": "http://code.purestorage.com/images/31_fusion.png",
