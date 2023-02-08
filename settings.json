@@ -1,0 +1,8 @@
+{
+    "id": "Fusion-DevKit",
+    "name": "Pure Fusion Client DevKit",
+    "filter": "devops",
+    "image": "http://code.purestorage.com/images/31_fusion.png",
+    "featured": 1,
+    "priority": 1
+}
