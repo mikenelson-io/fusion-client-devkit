@@ -40,7 +40,9 @@ mkdir api-client
 echo API_CLIENT_ID > api-client/issuer
 cp PATH_TO_PRIV_KEY api-client/
 docker run -it -v `pwd`/api-client:/api-client fusion-devkit bash
+```
 ** If running on an Apple M1 arm64 OS, use:
+```
 docker run --platform linux/amd64 -it -v `pwd`/api-client:/api-client fusion-devkit bash
 ```
 
