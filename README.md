@@ -34,7 +34,7 @@ There are 2 main ways to get access to the tools:
 	 - Replace API_CLIENT_ID with the APP ID from Pure1.
 	 - Replace PATH_TO_PRIV_KEY with absolute path to the private key.pem file
 ```
-wget https://github.com/pure-aferrario/fusion-client-setup/releases/latest/download/fusion-devkit.tar
+wget https://github.com/PureStorage-OpenConnect/fusion-client-devkit/releases/latest/download/fusion-devkit.tar
 docker load < fusion-devkit.tar
 mkdir api-client
 echo API_CLIENT_ID > api-client/issuer
@@ -48,7 +48,7 @@ docker run --platform linux/amd64 -it -v `pwd`/api-client:/api-client fusion-dev
 
 ### Using the installer bash script
 ```
-git clone https://github.com/pure-aferrario/fusion-client-setup.git
+git clone https://github.com/PureStorage-OpenConnect/fusion-client-devkit.git
 cd fusion-client-setup
 sudo chmod +x setup.sh
 ./setup.sh API_CLIENT_ID PATH_TO_PRIV_KEY
