@@ -12,7 +12,7 @@ If you need a high level overview of Pure Fusion please check out [this Youtube 
 
     - [API Client Creation Guide](https://support.purestorage.com/Pure_Fusion/Getting_Started_with_Pure_Fusion/Creating_and_API_Client%2F%2FApplication_Access_for_Fusion_or_Pure1_API_access)
 
- - Operating system compatability. The intial build of the DevKit was tested on Ubuntu 20.04. Since the DevKit can run as a Docker container, it should run on any platform supported by a Linux container.
+ - Operating system compatability. The intial build of the DevKit was tested on Ubuntu 20.04. Since the DevKit can run as a Docker container, it should run on any platform supported by a Linux container. If using the Installer method, then the OS must be CentOS or Ubuntu.
  *Pull requests welcomed for other tested operating systems*
 	 - An x86-64 Ubuntu linux machine
 	    - Windows WSL2 or a virtual machine
@@ -46,7 +46,7 @@ docker run -it -v `pwd`/api-client:/api-client fusion-devkit bash
 docker run --platform linux/amd64 -it -v `pwd`/api-client:/api-client fusion-devkit bash
 ```
 
-### Using the installer bash script
+### Using the installer bash script (CentOS or Ubuntu only)
 ```
 git clone https://github.com/PureStorage-OpenConnect/fusion-client-devkit.git
 cd fusion-client-setup
@@ -55,7 +55,11 @@ sudo chmod +x setup.sh
 ```
 
 ## Tools currently available
-Here are the current tools provided in the DevKit:
+These are the tools currently provided in the DevKit:
+
+### Fusion Swagger (Container image only)
+The Swagger interface for the Fusion API is included in the container image. To launch Swagger to view on the local desktop, you must expose the local tcp 8080 port via the ```-p <port>:8080``` parameter in the Docker run command. As an example:
+``` docker run -p 1234:8080 -v `pwd`/api-client:/api-client fusion-devkit bash ```
 
 ### HMCTL
 HMCTL is the remote CLI utility provided with Fusion.
@@ -69,22 +73,22 @@ After this install you should be able to run commands as seen in [this guide](ht
 ### Python
 Our Python library has full support for all Fusion APIs.
 
-To run the smoke test:
+To run a smoke test:
 ```
 python3 python/00_smoke_test.py
 ```
-After installation is complete you can refer to [the documentation](https://github.com/PureStorage-OpenConnect/fusion-python-sdk) for guidance on writing your own Python scripts.
+After installation is complete, you can refer to [the documentation](https://github.com/PureStorage-OpenConnect/fusion-python-sdk) for guidance on writing your own Python scripts.
 
 ### Ansible
 Our Ansible collection has full support for all Fusion APIs.
 
-To run the smoke test:
+To run a smoke test:
 ```
 ansible-playbook smoke_test.yml
 ```
-After installation you can check out the ansible collection from the [Ansible documentation page here](https://docs.ansible.com/ansible/latest/collections/purestorage/fusion/index.html#plugins-in-purestorage-fusion) for more information on the individual modules.
+After installation, you can check out the ansible collection from the [Ansible documentation page here](https://docs.ansible.com/ansible/latest/collections/purestorage/fusion/index.html#plugins-in-purestorage-fusion) for more information on the individual modules.
 
 ### Terraform
-Our Terraform provider supports consumer workflows in Fusion. Terraform won't do a full smoke test because it is a consumer-focused provider and requires more Fusion configuration before it can execute.
+Our Terraform provider supports consumer workflows in Fusion. Terraform does not allow for a full smoke test since it is a consumer-focused provider and requires more Fusion configuration before it can execute.
 
-After installation you can see the [Terraform module documentation here](https://registry.terraform.io/providers/PureStorage-OpenConnect/fusion/1.0.0) for guidance on writing your own Terraform templates.
+After installation, you can see the [Terraform module documentation here](https://registry.terraform.io/providers/PureStorage-OpenConnect/fusion/1.0.0) for guidance on writing your own Terraform templates.
