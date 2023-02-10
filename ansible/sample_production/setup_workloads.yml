@@ -1,12 +1,16 @@
 ---
-- hosts: Initiators_Hosts
-
+- name: List IQN
+  hosts: Initiators_Hosts
   become: true
   tasks:
-
     - name: Obtain IQN from Initiators_Hosts
-      ansible.builtin.shell: cat /etc/iscsi/initiatorname.iscsi | grep "^InitiatorName=iqn" | awk -F'=' '{print $2}'
+      ansible.builtin.shell: >
+        set -o pipefail &&
+        (cat /etc/iscsi/initiatorname.iscsi |
+        grep "^InitiatorName=iqn" |
+        awk -F'=' '{print $2}')
       register: iqn
+      changed_when: false
 
     - name: IQN Results
       ansible.builtin.debug:
@@ -15,14 +19,16 @@
           - "Hostname: {{ ansible_hostname }}"
           - "IQN: {{ iqn.stdout }}"
 
-- hosts: localhost
-
+- name: Setup environment
+  hosts: localhost
   tasks:
-    - ansible.builtin.include_vars: group_vars/workloads.yml
+    - name: Import storage service/class variables
+      ansible.builtin.include_vars: group_vars/workloads.yml
 
-    - ansible.builtin.set_fact:
+    - name: Setup local variables
+      ansible.builtin.set_fact:
         iqn_data: []
-        map_volumes: { }
+        map_volumes: {}
 
     - name: Check private key exists
       ansible.builtin.stat:
@@ -49,7 +55,7 @@
         personality: "linux"
         iqn: "{{ item.iqn }}"
       with_items: "{{ iqn_data }}"
-      when: item.iqn != ""
+      when: item.iqn|length > 0
 
     - name: Create new tenant space(s)
       purestorage.fusion.fusion_ts:
@@ -112,12 +118,14 @@
         key_file: "{{ priv_key_file }}"
       register: reg_fusion_info
 
-- hosts: Initiators_Hosts
+- name: Run an IO workload
+  hosts: Initiators_Hosts
   become: true
   tasks:
-    - ansible.builtin.set_fact:
-        valid_volumes: { }
-        devices: { }
+    - name: Setup local variables
+      ansible.builtin.set_fact:
+        valid_volumes: {}
+        devices: {}
         iscsi_interfaces: []
         list_ip: []
         iqn_list: []
@@ -129,7 +137,9 @@
       with_items: "{{ hostvars['localhost']['volumes'] }}"
       when: inventory_hostname in item.host_access_policies
 
-    - ansible.builtin.debug: msg="{{ valid_volumes }}"
+    - name: Print valid volumes
+      ansible.builtin.debug:
+        msg: "{{ valid_volumes }}"
 
     - name: Parse volume, mount path and volume id
       ansible.builtin.set_fact:
@@ -137,7 +147,8 @@
       with_dict: "{{ hostvars['localhost']['map_volumes'] }}"
       when: item.key in valid_volumes.keys()
 
-    - ansible.builtin.debug:
+    - name: Print mount pairs
+      ansible.builtin.debug:
         msg:
           - "Mount: /dev/mapper/{{ item.value.serial }}"
           - "On: {{ item.key }}"
@@ -189,6 +200,7 @@
       ansible.builtin.file:
         path: "{{ item.key }}"
         state: directory
+        mode: 0755
       with_dict: "{{ devices }}"
 
     - name: Mount volumes
@@ -208,11 +220,16 @@
       ansible.builtin.copy:
         src: "./files/initiator_random_write.fio"
         dest: "/tmp/initiator_random_write.fio"
+        mode: 0644
 
     - name: Run FIO process
-      ansible.builtin.command: "chdir={{ item.mount_path }} fio /tmp/initiator_random_write.fio"
+      ansible.builtin.command:
+        chdir: "{{ item.mount_path }}"
+        cmd: "fio /tmp/initiator_random_write.fio"
       with_items: "{{ hostvars['localhost']['volumes'] }}"
       register: ps
+      changed_when: true
 
     - name: FIO Results
-      ansible.builtin.debug: var=ps.stdout_lines
+      ansible.builtin.debug:
+        var: "ps.stdout_lines"

@@ -1,7 +1,9 @@
 ---
-- hosts: localhost
+- name: Setup infrastructure
+  hosts: localhost
   tasks:
-    - ansible.builtin.include_vars: group_vars/infrastructure.yml
+    - name: Import infrastructure variables
+      ansible.builtin.include_vars: group_vars/infrastructure.yml
 
     - name: Check private key exists
       ansible.builtin.stat:

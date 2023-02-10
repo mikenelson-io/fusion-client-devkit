@@ -1,5 +1,6 @@
 ---
-- hosts: localhost
+- name: Print API clients
+  hosts: localhost
   tasks:
     - name: Collect api_clients for Pure Storage
       purestorage.fusion.fusion_info:
@@ -8,4 +9,6 @@
         key_file: "{{ ansible_env.PRIV_KEY_FILE }}"
       register: fusion_info
 
-    - ansible.builtin.debug: msg="{{ fusion_info['fusion_info'] }}"
+    - name: Print Fusion resources
+      ansible.builtin.debug:
+        msg: "{{ fusion_info['fusion_info'] }}"

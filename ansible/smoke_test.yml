@@ -1,5 +1,6 @@
 ---
-- hosts: localhost
+- name: Smoke test
+  hosts: localhost
   tasks:
    - name: Collect basic information as part of smoke test
      purestorage.fusion.fusion_info:

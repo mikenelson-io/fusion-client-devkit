@@ -1,11 +1,13 @@
 ---
-- hosts: localhost
-
+- name: Map volumes and endpoints
+  hosts: localhost
   tasks:
-    - ansible.builtin.include_vars: group_vars/workloads.yml
+    - name: Import workload variables
+      ansible.builtin.include_vars: group_vars/workloads.yml
 
-    - ansible.builtin.set_fact:
-        map_volumes: { }
+    - name: Setup local variables
+      ansible.builtin.set_fact:
+        map_volumes: {}
 
     - name: Check private key exists
       ansible.builtin.stat:
@@ -38,15 +40,17 @@
         key_file: "{{ priv_key_file }}"
       register: reg_fusion_info
 
-- hosts: Initiators_Hosts
+- name: Unmount volumes
+  hosts: Initiators_Hosts
   become: true
   tasks:
-    - ansible.builtin.set_fact:
-        valid_volumes: { }
-        devices: { }
+    - name: Setup local variables
+      ansible.builtin.set_fact:
+        valid_volumes: {}
+        devices: {}
         list_ip: []
         iqn_list: []
-        unmount_report: { }
+        unmount_report: {}
         failed_unmount: []
         reg_fusion_info: "{{ hostvars['localhost']['reg_fusion_info'] }}"
 
@@ -98,24 +102,31 @@
       loop: "{{ iqn_list }}"
 
     - name: Obtain IQN from Initiators_Hosts
-      ansible.builtin.shell: cat /etc/iscsi/initiatorname.iscsi | grep "^InitiatorName=iqn" | awk -F'=' '{print $2}'
+      ansible.builtin.shell: >
+        set -o pipefail &&
+        (cat /etc/iscsi/initiatorname.iscsi |
+        grep "^InitiatorName=iqn" |
+        awk -F'=' '{print $2}')
       register: iqn
+      changed_when: false
 
     - name: IQN Results
       ansible.builtin.debug:
         msg: "host: {{ ansible_hostname }} - iqn: {{ iqn.stdout }}"
 
-- hosts: localhost
-
+- name: Teardown environment
+  hosts: localhost
   tasks:
-    - ansible.builtin.include_vars: group_vars/workloads.yml
+    - name: Import workload variables
+      ansible.builtin.include_vars: group_vars/workloads.yml
 
-    - ansible.builtin.set_fact:
+    - name: Setup local variables
+      ansible.builtin.set_fact:
         iqn_data: []
         map_volumes: []
-        HAP_undeletable: []
-        PG_undeletable: []
-        TS_undeletable: []
+        hap_undeletable: []
+        pg_undeletable: []
+        ts_undeletable: []
 
     - name: Create IQN/Hostname dictionary
       ansible.builtin.set_fact:
@@ -126,13 +137,13 @@
     - name: Create failed_unmount var
       ansible.builtin.set_fact:
         failed_unmount: []
-      when: failed_unmount|default('') == ''
+      when: failed_unmount|default('')|length > 0
 
     - name: Obtain a list of HAP/PG to keep
       ansible.builtin.set_fact:
-        HAP_undeletable: "{{ HAP_undeletable + item.host_access_policies }}"
-        PG_undeletable: "{{ PG_undeletable + [item.placement_group] }}"
-        TS_undeletable: "{{ TS_undeletable + [item.tenant_space] }}"
+        hap_undeletable: "{{ hap_undeletable + item.host_access_policies }}"
+        pg_undeletable: "{{ pg_undeletable + [item.placement_group] }}"
+        ts_undeletable: "{{ ts_undeletable + [item.tenant_space] }}"
       with_items: "{{ volumes }}"
       when: item.mount_path in failed_unmount
 
@@ -144,8 +155,8 @@
       with_items: "{{ volumes }}"
       when:
         - item.mount_path not in failed_unmount
-        - item.placement_group not in PG_undeletable
-        - item.tenant_space not in TS_undeletable
+        - item.placement_group not in pg_undeletable
+        - item.tenant_space not in ts_undeletable
 
     - name: Remove HAP from volume(s)
       purestorage.fusion.fusion_volume:
@@ -187,7 +198,7 @@
         name: "{{ item.hostname }}"
         iqn: "{{ item.iqn }}"
       with_items: "{{ iqn_data }}"
-      when: item.hostname not in HAP_undeletable
+      when: item.hostname not in hap_undeletable
 
     - name: Delete placement group(s)
       purestorage.fusion.fusion_pg:
@@ -201,7 +212,7 @@
         availability_zone: "{{ item.availability_zone }}"
         region: "{{ item.region }}"
       with_items: "{{ placement_groups }}"
-      when: item.name not in PG_undeletable
+      when: item.name not in pg_undeletable
 
     - name: Delete tenant space(s)
       purestorage.fusion.fusion_ts:
@@ -211,4 +222,4 @@
         name: "{{ item.name }}"
         tenant: "{{ item.tenant }}"
       with_items: "{{ tenant_space }}"
-      when: item.name not in TS_undeletable
+      when: item.name not in ts_undeletable

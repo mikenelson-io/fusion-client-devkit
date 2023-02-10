@@ -1,11 +1,13 @@
 ---
-- hosts: localhost
+- name: Setup storage service & class
+  hosts: localhost
   # this playbook create a new storage service and class
   # wiki: https://docs.ansible.com/ansible/latest/collections/purestorage/fusion/fusion_ss_module.html#ansible-collections-purestorage-fusion-fusion-ss-module
   # wiki: https://docs.ansible.com/ansible/latest/collections/purestorage/fusion/fusion_sc_module.html#ansible-collections-purestorage-fusion-fusion-sc-module
 
   tasks:
-    - ansible.builtin.include_vars: group_vars/storage_service_class.yml
+    - name: Import storage service/class variables
+      ansible.builtin.include_vars: group_vars/storage_service_class.yml
 
     - name: Check private key exists
       ansible.builtin.stat:

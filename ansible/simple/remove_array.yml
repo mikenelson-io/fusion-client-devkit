@@ -1,12 +1,13 @@
 ---
-- hosts: localhost
+- name: Remote array
+  hosts: localhost
   tasks:
 
     - name: Remove array
       purestorage.fusion.fusion_array:
         app_id: "{{ ansible_env.API_CLIENT }}"
         key_file: "{{ ansible_env.PRIV_KEY_FILE }}"
-        state: absent # or present
+        state: absent  # or present
         name: flasharray3
         display_name: "flasharray3"
         host_name: "flasharray3"

@@ -1,10 +1,12 @@
 ---
-- hosts: localhost
-  # this playbook create a new protection policy
+- name: Setup protection policy
+  hosts: localhost
+  # this playbook creates a new protection policy
   # wiki: https://docs.ansible.com/ansible/latest/collections/purestorage/fusion/fusion_pp_module.html#ansible-collections-purestorage-fusion-fusion-pp-module
 
   tasks:
-    - ansible.builtin.include_vars: group_vars/protection_policies.yml
+    - name: Import protection policy variables
+      ansible.builtin.include_vars: group_vars/protection_policies.yml
 
     - name: Check private key exists
       ansible.builtin.stat:

@@ -1,10 +1,13 @@
 ---
-- hosts: localhost
-
+- name: Teardown consumer
+  hosts: localhost
   tasks:
-    - ansible.builtin.include_vars: group_vars/consumer.yml
-    - ansible.builtin.set_fact:
-        tenants_dict: { }
+    - name: Import consumer variables
+      ansible.builtin.include_vars: group_vars/consumer.yml
+
+    - name: Setup local variables
+      ansible.builtin.set_fact:
+        tenants_dict: {}
 
     - name: Convert Tenant list to dict
       ansible.builtin.set_fact:
@@ -37,7 +40,14 @@
         key_file: "{{ ansible_env.PRIV_KEY_FILE }}"
         state: absent
         name: "{{ item.name }}"
-        public_key: "{{ lookup('file', workdir + '/' + item.name + '/pub_' + item.name + '.pem') }}"
+        public_key: "{{
+          lookup('file',
+          workdir +
+          '/' +
+          item.name +
+          '/pub_' +
+          item.name +
+          '.pem') }}"
       loop: "{{ tenants }}"
 
     - name: Delete Tenants
