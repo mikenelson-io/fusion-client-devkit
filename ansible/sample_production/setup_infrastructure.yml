@@ -30,6 +30,7 @@
         state: present # or absent
         name: "{{ item.name }}"
         display_name: "{{ item.display_name }}"
+        region: "{{ item.region }}"
       loop: "{{ availability_zones }}"
 
     - name: Create new network interface group(s)
@@ -74,4 +75,5 @@
         az: "{{ item.az }}"
         hardware_type: "{{ item.hardware_type }}"
         region: "{{ item.region }}"
+        maintenance_mode: false
       loop: "{{ arrays }}"
