@@ -158,7 +158,7 @@
         - item.placement_group not in pg_undeletable
         - item.tenant_space not in ts_undeletable
 
-    - name: Delete volume(s)
+    - name: Eradicate volume(s)
       purestorage.fusion.fusion_volume:
         app_id: "{{ api_client }}"
         key_file: "{{ priv_key_file }}"
