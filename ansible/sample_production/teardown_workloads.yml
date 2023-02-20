@@ -137,7 +137,7 @@
     - name: Create failed_unmount var
       ansible.builtin.set_fact:
         failed_unmount: []
-      when: failed_unmount|default('')|length > 0
+      when: "failed_unmount is undefined"
 
     - name: Obtain a list of HAP/PG to keep
       ansible.builtin.set_fact:
@@ -158,7 +158,7 @@
         - item.placement_group not in pg_undeletable
         - item.tenant_space not in ts_undeletable
 
-    - name: Remove HAP from volume(s)
+    - name: Eradicate volume(s)
       purestorage.fusion.fusion_volume:
         app_id: "{{ api_client }}"
         key_file: "{{ priv_key_file }}"
@@ -170,22 +170,7 @@
         tenant_space: "{{ item.tenant_space }}"
         placement_group: "{{ item.placement_group }}"
         host_access_policies: []
-        state: "present"
-      with_items: "{{ volumes }}"
-      when: item.mount_path not in failed_unmount
-
-    - name: Delete volume(s)
-      purestorage.fusion.fusion_volume:
-        app_id: "{{ api_client }}"
-        key_file: "{{ priv_key_file }}"
-        name: "{{ item.name }}"
-        display_name: "{{ item.display_name }}"
-        size: "{{ item.size }}"
-        storage_class: "{{ item.storage_class }}"
-        tenant: "{{ item.tenant }}"
-        tenant_space: "{{ item.tenant_space }}"
-        placement_group: "{{ item.placement_group }}"
-        host_access_policies: "{{ item.host_access_policies }}"
+        eradicate: true
         state: "absent"
       with_items: "{{ volumes }}"
       when: item.mount_path not in failed_unmount
