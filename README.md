@@ -17,38 +17,52 @@ If you need a high level overview of Pure Fusion please check out [this Youtube 
 	 - An x86-64 Ubuntu linux machine
 	    - Windows WSL2 or a virtual machine
 	    - If not running native Docker, install Docker Desktop for the DevKit container
-	- An Apple M1 (arm64) or Intel (amd64) machine
+	- An Apple Silicon (arm64) or Intel (amd64) machine
 	    - Docker Desktop installed
 	    - wget installed
 
 ## Setting up the Tools
 There are 2 main ways to get access to the tools:
- - Downloading and using the pre-packaged Docker image
+ - Downloading and using the pre-built Docker image
  - Running the installer to install the tools natively
 
-**Using the pre-packaged Docker image (recommended)**
+**Using the Pre-built Docker Image**
 
  - Notes: 
-	 - Install Docker Desktop before proceeding for WSL2 and MacOS or Windows. If using WSL2 in Windows, ensure Docker Desktop is enabled for your distribution in the Docker settings
-	 - If running on MacOS with Darwin, install `wget` before proceeding (ex. `brew install wget`)
+	 - Install Docker Desktop before proceeding for WSL2 and MacOS or Windows. If using WSL2 in Windows, ensure Docker Desktop is enabled for your distribution in the Docker Resource settings
+	 - If running on MacOS, install `wget` before proceeding (ex. `brew install wget`)
 	 - Replace API_CLIENT_ID with the APP ID from Pure1.
-	 - Replace PATH_TO_PRIV_KEY with absolute path to the private key.pem file
+	 - Replace PATH_TO_PRIV_KEY with the absolute path to the private key.pem file
 ```
-wget https://github.com/PureStorage-OpenConnect/fusion-client-devkit/releases/latest/download/fusion-devkit.tar
-docker load < fusion-devkit.tar
+# Pull the Docker image:
+docker pull quay.io/purestorage/fusion-devkit
+# If necessary, you may download the image .tar file directly and import it manually into Docker:
+      wget https://github.com/PureStorage-OpenConnect/fusion-client-devkit/releases/latest/download/fusion-devkit.tar
+      docker load < fusion-devkit.tar
+# Create the folder and copy the required keys:
 mkdir api-client
 echo API_CLIENT_ID > api-client/issuer
 cp PATH_TO_PRIV_KEY api-client/
-docker run -it -v `pwd`/api-client:/api-client fusion-devkit bash
 ```
-** If running on an Apple M1 arm64 OS, use:
+## Spin up the Container
 ```
-docker run --platform linux/amd64 -it -v `pwd`/api-client:/api-client fusion-devkit bash
+# For the command lines below, replace <image_name> with either 'quay.io/purestorage/fusion-devkit' (if pulled from quay.io), or 'fusion-devkit' if downloaded manually.
+
+# For amd64:
+docker run -it -v `pwd`/api-client:/api-client <image_name> bash
+
+# For Apple Silicon arm64:
+docker run --platform linux/amd64 -it -v `pwd`/api-client:/api-client <image_name> bash
+
+# To access the Fusion Swagger interface on port 8080 of localhost:
+docker run -p 8080:8080 -v `pwd`/api-client:/api-client <image_name> bash
 ```
 
-### Using the installer bash script (CentOS or Ubuntu only)
+### Using the Installer bash script - CentOS or Ubuntu only (WSLv2/BareMetal/VM)
 ```
+# Clone the repository:
 git clone https://github.com/PureStorage-OpenConnect/fusion-client-devkit.git
+# Move into the folder and run the setup.sh script:
 cd fusion-client-setup
 sudo chmod +x setup.sh
 ./setup.sh API_CLIENT_ID PATH_TO_PRIV_KEY
@@ -59,7 +73,7 @@ These are the tools currently provided in the DevKit:
 
 ### Fusion Swagger (Container image only)
 The Swagger interface for the Fusion API is included in the container image. To launch Swagger to view on the local desktop, you must expose the local tcp 8080 port via the ```-p <port>:8080``` parameter in the Docker run command. As an example:
-``` docker run -p 1234:8080 -v `pwd`/api-client:/api-client fusion-devkit bash ```
+``` docker run -p 1234:8080 -v `pwd`/api-client:/api-client <image_name> bash ```
 
 ### HMCTL
 HMCTL is the remote CLI utility provided with Fusion.
@@ -88,7 +102,7 @@ ansible-playbook smoke_test.yml
 ```
 After installation, you can check out the ansible collection from the [Ansible documentation page here](https://docs.ansible.com/ansible/latest/collections/purestorage/fusion/index.html#plugins-in-purestorage-fusion) for more information on the individual modules.
 
-### Terraform
+### Terraform (Installer Only - not in container image just yet)
 Our Terraform provider supports consumer workflows in Fusion. Terraform does not allow for a full smoke test since it is a consumer-focused provider and requires more Fusion configuration before it can execute.
 
 After installation, you can see the [Terraform module documentation here](https://registry.terraform.io/providers/PureStorage-OpenConnect/fusion/1.0.0) for guidance on writing your own Terraform templates.
