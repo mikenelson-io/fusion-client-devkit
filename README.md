@@ -39,7 +39,7 @@ docker pull quay.io/purestorage/fusion-devkit
 # If necessary, you may download the image .tar file directly and import it manually into Docker:
       wget https://github.com/PureStorage-OpenConnect/fusion-client-devkit/releases/latest/download/fusion-devkit.tar
       docker load < fusion-devkit.tar
-# Create the folder and copy the required keys:
+# Create the folder and copy the required key and file:
 mkdir api-client
 echo API_CLIENT_ID > api-client/issuer
 cp PATH_TO_PRIV_KEY api-client/
@@ -61,9 +61,9 @@ docker run -p 8080:8080 -v `pwd`/api-client:/api-client <image_name> bash
 ### Using the Installer bash script - CentOS or Ubuntu only (WSLv2/BareMetal/VM)
 ```
 # Clone the repository:
-git clone https://github.com/PureStorage-OpenConnect/fusion-client-devkit.git
-# Move into the folder and run the setup.sh script:
-cd fusion-client-setup
+git clone https://github.com/PureStorage-OpenConnect/fusion-client-devkit.git `pwd`/fusion-devkit-setup
+# Move into the folder and run the setup.sh script, replacing the two variables with the proper key and path:
+cd fusion-devkit-setup
 sudo chmod +x setup.sh
 ./setup.sh API_CLIENT_ID PATH_TO_PRIV_KEY
 ```
