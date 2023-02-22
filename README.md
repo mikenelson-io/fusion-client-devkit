@@ -1,5 +1,5 @@
-![](https://github.com/PureStorage-OpenConnect/fusion-client-devkit/blob/main/images/Pure%20Fusion%20icon%20logo.png)
-
+![](https://github.com/PureStorage-OpenConnect/fusion-client-devkit/blob/main/images/Pure%20Fusion%20icon%20logo.png) 
+[![Docker Repository on Quay](https://quay.io/repository/purestorage/fusion-devkit/status "Docker Repository on Quay")](https://quay.io/repository/purestorage/fusion-devkit)
 # Setting up your Fusion DevKit Client
 This repository is to help you set up a machine that will install and configure the necessary tools to connect to your Fusion environment.
 
