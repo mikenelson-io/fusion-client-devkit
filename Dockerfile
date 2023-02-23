@@ -1,9 +1,14 @@
 # How to run
-# 1. Copy your private key to ./api/clients/devkit/Dockerfile/api-client directory with the name private-key.pem
-# 2. Create one-line file with issuer-id in it. Name it issuer and put it to ./api/clients/devkit/Dockerfile/api-client
-# 3. For accesing swagger you need to expose port 8080 in your container with: -p <YOUR_PORT>:8080 flag
-# 4. Now you can run the container with this command:
-# docker run -p <YOUR_PORT>:8080 -v <harbormaster-path>/api/clients/devkit/Dockerfile/api-client/:/api-client/ -d <IMAGE_NAME>
+# 1. Create a directory and name it <CLIENT_NAME_DIR>
+# 2. Copy your private key to <CLIENT_NAME_DIR> with the name: private-key.pem
+# 3. Create one-line file with issuer-id in it. Name it issuer and put it to directory <CLIENT_NAME_DIR>
+# 4. For accesing swagger you need to expose port 8080 in your container with: -p <YOUR_PORT>:8080 flag
+# 5. Now you can run the container with this command:
+#
+# In detached mode:
+# docker run -p <YOUR_PORT>:8080 -v <FULL_PATH_CLIENT_NAME_DIR>/:/<CLIENT_NAME>-client/ -dit <IMAGE_NAME>
+# In interactive session:
+# docker run -p <YOUR_PORT>:8080 -v <FULL_PATH_CLIENT_NAME_DIR>/:/<CLIENT_NAME>-client/ -it --rm <IMAGE_NAME>
 #
 # You are ready to go!
 # To use python script: docker exec <CONTAINER_ID> python3 samples/python/<PATH_TO_SCRIPT>
@@ -15,7 +20,7 @@ FROM swaggerapi/swagger-ui:v4.15.5
 
 # Install required tools
 RUN apk update
-RUN apk add wget git py3-pip 
+RUN apk add wget git py3-pip openssh
 RUN apk add --no-cache bash bash-completion
 
 # Install Python SDK and Ansible
@@ -23,9 +28,10 @@ RUN pip3 install --upgrade pip && pip3 install purefusion cryptography==3.4.8 an
 
 # Install ansible's fusion collection
 RUN ansible-galaxy collection install purestorage.fusion
+COPY patches/modules/ /root/.ansible/collections/ansible_collections/purestorage/fusion/plugins/modules/
+COPY patches/module_utils/ /root/.ansible/collections/ansible_collections/purestorage/fusion/plugins/module_utils/
 
 # Get ansible playbooks and python scripts
-RUN mkdir samples
 COPY ansible  ./samples/ansible
 COPY python  ./samples/python
 
@@ -40,6 +46,15 @@ ENV SWAGGER_JSON=/generated_spec.yaml
 COPY ./generated/generated_spec.yaml /generated_spec.yaml
 
 # Add entrypoint
-COPY 50-fusion.sh /docker-entrypoint.d/50-fusion.sh
+COPY docker-entrypoint/50-fusion.sh /docker-entrypoint.d/50-fusion.sh
 RUN chmod +x /docker-entrypoint.d/50-fusion.sh
 RUN echo "$(cat /docker-entrypoint.d/50-fusion.sh)" > /etc/profile.d/bashrc.sh
+
+# Change docker-entrypoint.sh 
+RUN mv /docker-entrypoint.sh /nginx-entrypoint.sh 
+COPY docker-entrypoint/docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+ENV NGINX_ENTRYPOINT_QUIET_LOGS=1
+
+# Add bash entrypoint
+CMD ["bash"]

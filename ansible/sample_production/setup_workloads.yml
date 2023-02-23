@@ -11,6 +11,8 @@
         awk -F'=' '{print $2}')
       register: iqn
       changed_when: false
+      args:
+        executable: /bin/bash
 
     - name: IQN Results
       ansible.builtin.debug:
