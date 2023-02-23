@@ -77,3 +77,9 @@
         region: "{{ item.region }}"
         maintenance_mode: false
       loop: "{{ arrays }}"
+
+    - name: Assign network interface(s) to network interface group(s)
+      include_tasks: setup_network_interfaces.yml
+      loop: "{{ arrays }}"
+      loop_control:
+        loop_var: array

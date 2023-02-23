@@ -225,6 +225,7 @@
         mode: 0644
 
     - name: Run FIO process
+      when: run_fio is true
       ansible.builtin.command:
         chdir: "{{ item.mount_path }}"
         cmd: "fio /tmp/initiator_random_write.fio"
@@ -233,5 +234,6 @@
       changed_when: true
 
     - name: FIO Results
+      when: run_fio is true
       ansible.builtin.debug:
         var: "ps.stdout_lines"
