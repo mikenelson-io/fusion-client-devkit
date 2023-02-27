@@ -12,19 +12,20 @@ If you need a high level overview of Pure Fusion please check out [this Youtube 
 
     - [API Client Creation Guide](https://support.purestorage.com/Pure_Fusion/Getting_Started_with_Pure_Fusion/Creating_and_API_Client%2F%2FApplication_Access_for_Fusion_or_Pure1_API_access)
 
- - Operating system compatability. The intial build of the DevKit was tested on Ubuntu 20.04. Since the DevKit can run as a Docker container, it should run on any platform supported by a Linux container. If using the Installer method, then the OS must be CentOS or Ubuntu.
+ - Operating system compatability. The intial build of the DevKit was tested on Ubuntu 20.04. Since the DevKit can run as a Docker container, it should run on any platform supported by a Linux container. If using the Installer method, then the OS must be CentOS, Ubuntu, or MacOS.
  *Pull requests welcomed for other tested operating systems*
-	 - An x86-64 Ubuntu linux machine
-	    - Windows WSL2 or a virtual machine
-	    - If not running native Docker, install Docker Desktop for the DevKit container
+	 - An x86-64 Ubuntu/CentOS linux machine
+	    - Bare metal, Windows WSLv2, or a virtual machine
+	    - Docker (Docker Desktop for WSLv2)
 	- An Apple Silicon (arm64) or Intel (amd64) machine
 	    - Docker Desktop installed
-	    - wget installed
+	    - wget installed (for standalone script install)
+	    - Xcode developer tools (for standalone script install)
 
 ## Setting up the Tools
-There are 2 main ways to get access to the tools:
+There are 2 ways to get access to the tools:
  - Downloading and using the pre-built Docker image
- - Running the installer to install the tools natively
+ - Running the standalone installer scripts to install the tools natively
 
 **Using the Pre-built Docker Image**
 
@@ -46,7 +47,7 @@ cp PATH_TO_PRIV_KEY api-client/
 ```
 ## Spin up the Container
 ```
-# For the command lines below, replace <image_name> with either 'quay.io/purestorage/fusion-devkit' (if pulled from quay.io), or 'fusion-devkit' if downloaded manually.
+# For the command lines below, replace <image_name> with either 'quay.io/purestorage/fusion-devkit' (if pulled from quay.io), or 'fusion-devkit' if downloaded manually from the GitHub repository.
 
 # For amd64:
 docker run -it -v `pwd`/api-client:/api-client <image_name> bash
@@ -58,7 +59,9 @@ docker run --platform linux/amd64 -it -v `pwd`/api-client:/api-client <image_nam
 docker run -p 8080:8080 -v `pwd`/api-client:/api-client <image_name> bash
 ```
 
-### Using the Installer bash script - CentOS or Ubuntu only (WSLv2/BareMetal/VM)
+### Using the Installer bash script - CentOS, Ubuntu (WSLv2/Bare metal/VM), and MacOS
+_Note: MacOS requires the Xcode developer tools to be installed_
+
 ```
 # Clone the repository:
 git clone https://github.com/PureStorage-OpenConnect/fusion-client-devkit.git `pwd`/fusion-devkit-setup
@@ -72,8 +75,11 @@ sudo chmod +x setup.sh
 These are the tools currently provided in the DevKit:
 
 ### Fusion Swagger (Container image only)
-The Swagger interface for the Fusion API is included in the container image. To launch Swagger to view on the local desktop, you must expose the local tcp 8080 port via the ```-p <port>:8080``` parameter in the Docker run command. As an example:
-``` docker run -p 1234:8080 -v `pwd`/api-client:/api-client <image_name> bash ```
+The Swagger interface for the Fusion API is included in the container image. To launch Swagger to view on the local desktop, you must expose the local tcp 8080 port via the ```-p <port>:8080``` parameter in the Docker run command. To expose port 8080 to port 1234 for localhost:  
+
+``` docker run -p 1234:8080 -v `pwd`/api-client:/api-client <image_name> bash ```  
+
+Now you may access swagger via http://127.0.0.1:1234
 
 ### HMCTL
 HMCTL is the remote CLI utility provided with Fusion.
