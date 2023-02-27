@@ -109,6 +109,8 @@
         awk -F'=' '{print $2}')
       register: iqn
       changed_when: false
+      args:
+        executable: /bin/bash
 
     - name: IQN Results
       ansible.builtin.debug:
@@ -145,7 +147,7 @@
         pg_undeletable: "{{ pg_undeletable + [item.placement_group] }}"
         ts_undeletable: "{{ ts_undeletable + [item.tenant_space] }}"
       with_items: "{{ volumes }}"
-      when: item.mount_path in failed_unmount
+      when: (failed_unmount is defined) and (item.mount_path in failed_unmount)
 
     - name: Volumes safe to remove
       ansible.builtin.debug:
@@ -154,26 +156,23 @@
           - "Path:{{ item.mount_path }}"
       with_items: "{{ volumes }}"
       when:
-        - item.mount_path not in failed_unmount
+        - (failed_unmount is undefined) or (item.mount_path not in failed_unmount)
         - item.placement_group not in pg_undeletable
         - item.tenant_space not in ts_undeletable
 
-    - name: Eradicate volume(s)
+    - name: Delete volume(s)
       purestorage.fusion.fusion_volume:
         app_id: "{{ api_client }}"
         key_file: "{{ priv_key_file }}"
         name: "{{ item.name }}"
         display_name: "{{ item.display_name }}"
-        size: "{{ item.size }}"
-        storage_class: "{{ item.storage_class }}"
         tenant: "{{ item.tenant }}"
         tenant_space: "{{ item.tenant_space }}"
-        placement_group: "{{ item.placement_group }}"
         host_access_policies: []
         eradicate: true
         state: "absent"
       with_items: "{{ volumes }}"
-      when: item.mount_path not in failed_unmount
+      when: (failed_unmount is undefined) or (item.mount_path not in failed_unmount)
 
     - name: Delete Host Access Policy
       purestorage.fusion.fusion_hap:

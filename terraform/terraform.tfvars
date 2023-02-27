@@ -1,0 +1,6 @@
+tenant_space_name         = "web-db"
+tenant_name               = "Tenant-2"
+availability_zone         = "AZ-1"
+region_name               = "pure-us-west"
+storage_service           = "flash-capacity"
+storage_class             = "general-use"

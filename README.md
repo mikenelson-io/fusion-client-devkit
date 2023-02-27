@@ -50,13 +50,20 @@ cp PATH_TO_PRIV_KEY api-client/
 # For the command lines below, replace <image_name> with either 'quay.io/purestorage/fusion-devkit' (if pulled from quay.io), or 'fusion-devkit' if downloaded manually from the GitHub repository.
 
 # For amd64:
-docker run -it -v `pwd`/api-client:/api-client <image_name> bash
+docker run -it --rm -v `pwd`/api-client:/default-client <image_name> bash
 
 # For Apple Silicon arm64:
-docker run --platform linux/amd64 -it -v `pwd`/api-client:/api-client <image_name> bash
+docker run --platform linux/amd64 -it --rm -v `pwd`/api-client:/default-client <image_name> bash
 
 # To access the Fusion Swagger interface on port 8080 of localhost:
-docker run -p 8080:8080 -v `pwd`/api-client:/api-client <image_name> bash
+docker run -p 8080:8080 -v `pwd`/api-client:/default-client <image_name> bash
+
+# For convenience, you can also add an alias
+alias fusion-devkit="docker run -it --rm -v `pwd`/api-client:/default-client <image_name> bash"
+
+# This is especially useful if you have more than 1 api-clients. E.g.
+alias fusion-devkit-azadmin="docker run -it --rm -v `pwd`/azadmin-client:/azadmin-client <image_name> bash"
+alias fusion-devkit-tenantadmin="docker run -it --rm -v `pwd`/tenantadmin-client:/tenantadmin-client <image_name> bash"
 ```
 
 ### Using the Installer bash script - CentOS, Ubuntu (WSLv2/Bare metal/VM), and MacOS
