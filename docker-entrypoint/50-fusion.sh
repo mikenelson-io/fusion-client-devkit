@@ -2,7 +2,7 @@
 clientDir=$(ls -d *-client | tail -n 1)
 clientName=${clientDir%%-client}
 
-if [ ! -d  $clientDir ]; then
+if [ ! -d  "$clientDir" ]; then
 	echo "client directory not mounted. Did you run with docker -v <path-to-client-dir>:/<client-name>-client?"
 	exit 1
 fi
