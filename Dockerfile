@@ -22,6 +22,7 @@ FROM swaggerapi/swagger-ui:v4.15.5
 RUN apk update
 RUN apk add wget git py3-pip openssh
 RUN apk add --no-cache bash bash-completion
+RUN apk add terraform --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community
 
 # Install Python SDK and Ansible
 RUN pip3 install --upgrade pip && pip3 install purefusion cryptography==3.4.8 ansible netaddr
@@ -31,9 +32,10 @@ RUN ansible-galaxy collection install purestorage.fusion
 COPY patches/modules/ /root/.ansible/collections/ansible_collections/purestorage/fusion/plugins/modules/
 COPY patches/module_utils/ /root/.ansible/collections/ansible_collections/purestorage/fusion/plugins/module_utils/
 
-# Get ansible playbooks and python scripts
+# Get ansible playbooks, terraform plans, and python scripts
 COPY ansible  ./samples/ansible
 COPY python  ./samples/python
+COPY terraform ./samples/terraform
 
 # Install hmctl 
 RUN wget -O /bin/hmctl https://github.com/PureStorage-OpenConnect/hmctl/releases/latest/download/hmctl-linux-amd64
