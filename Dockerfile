@@ -16,19 +16,26 @@
 # To use hmctl: docker exec <CONTAINER_ID> hmctl <COMMAND>
 # You can also enter interactive session: docker exec -it <CONTAINER_ID> /bin/bash
 
-FROM swaggerapi/swagger-ui:v4.15.5
+ARG TARGETPLATFORM
+ARG LOCAL_REGISTRY=localhost:5000/
+ARG SWAGGER_UI_IMAGE=swagger-ui:v4.15.5
+
+FROM ${LOCAL_REGISTRY}${SWAGGER_UI_IMAGE}
 
 # Install required tools
-RUN apk update
-RUN apk add wget git py3-pip openssh
-RUN apk add --no-cache bash bash-completion
+RUN apk update && apk add --no-cache wget git\
+    py3-pip python3-dev\
+    bash bash-completion\
+    gcc musl-dev libffi-dev openssh
 RUN apk add terraform --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community
 
 # Install Python SDK and Ansible
-RUN pip3 install --upgrade pip && pip3 install purefusion cryptography==3.4.8 ansible netaddr
+RUN pip3 install wheel
+RUN pip3 install purefusion cryptography==3.4.8 ansible netaddr
 
 # Install ansible's fusion collection
 RUN ansible-galaxy collection install purestorage.fusion
+
 COPY patches/modules/ /root/.ansible/collections/ansible_collections/purestorage/fusion/plugins/modules/
 COPY patches/module_utils/ /root/.ansible/collections/ansible_collections/purestorage/fusion/plugins/module_utils/
 
@@ -38,10 +45,10 @@ COPY python  ./samples/python
 COPY terraform ./samples/terraform
 
 # Install hmctl 
-RUN wget -O /bin/hmctl https://github.com/PureStorage-OpenConnect/hmctl/releases/latest/download/hmctl-linux-amd64
-RUN chmod +x /bin/hmctl
-RUN mkdir /etc/bash_completion.d
-RUN hmctl completion bash > /etc/bash_completion.d/hmctl
+RUN if [ ${TARGETPLATFORM} == "linux/arm64" ] ; then wget -O /bin/hmctl https://github.com/PureStorage-OpenConnect/hmctl/releases/latest/download/hmctl-linux-arm64 ; else wget -O /bin/hmctl https://github.com/PureStorage-OpenConnect/hmctl/releases/latest/download/hmctl-linux-amd64 ; fi
+RUN chmod +x /bin/hmctl &&\
+    mkdir /etc/bash_completion.d &&\
+    hmctl completion bash > /etc/bash_completion.d/hmctl
 
 # Swagger settings
 ENV SWAGGER_JSON=/generated_spec.yaml
@@ -49,14 +56,14 @@ COPY ./generated/generated_spec.yaml /generated_spec.yaml
 
 # Add entrypoint
 COPY docker-entrypoint/50-fusion.sh /docker-entrypoint.d/50-fusion.sh
-RUN chmod +x /docker-entrypoint.d/50-fusion.sh
-RUN echo "$(cat /docker-entrypoint.d/50-fusion.sh)" > /etc/profile.d/bashrc.sh
+RUN chmod +x /docker-entrypoint.d/50-fusion.sh &&\
+    echo "$(cat /docker-entrypoint.d/50-fusion.sh)" > /etc/profile.d/bashrc.sh
 
 # Change docker-entrypoint.sh 
+ENV NGINX_ENTRYPOINT_QUIET_LOGS=1
 RUN mv /docker-entrypoint.sh /nginx-entrypoint.sh 
 COPY docker-entrypoint/docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
-ENV NGINX_ENTRYPOINT_QUIET_LOGS=1
 
 # Add bash entrypoint
 CMD ["bash"]
