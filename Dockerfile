@@ -65,5 +65,25 @@ RUN mv /docker-entrypoint.sh /nginx-entrypoint.sh
 COPY docker-entrypoint/docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
+# Modify MOTD
+ENV INSTALL /usr/local/src
+RUN echo '[ ! -z "$TERM" -a -r /etc/motd ] && cat /etc/issue && cat /etc/motd' \
+    >> /etc/bash.bashrc \
+    ; echo "\
+██████  ██    ██ ██████  ███████ ███████ ████████  ██████  ██████   █████   ██████  ███████ \n\
+██   ██ ██    ██ ██   ██ ██      ██         ██    ██    ██ ██   ██ ██   ██ ██       ██      \n\
+██████  ██    ██ ██████  █████   ███████    ██    ██    ██ ██████  ███████ ██   ███ █████   \n\
+██      ██    ██ ██   ██ ██           ██    ██    ██    ██ ██   ██ ██   ██ ██    ██ ██      \n\
+██       ██████  ██   ██ ███████ ███████    ██     ██████  ██   ██ ██   ██  ██████  ███████ \n\
+\n\
+Welcome to the Pure Fusion DevKit. Here is some information to get you started: \n\
+- Generic sample scripts are located in the /samples folder. Do not use these as-is. You must modify them to suit your environment. \n\
+- If you enabled the -p port option when launching this container, the Fusion Swagger interface can be accessed at http://localhost:port/ \n\
+- Refer to the documentation in the GitHub repository and the purestorage.com website for more information. \n\
+- If you have any questions, please contact Pure Storage Support. \n\
+\n\
+\n"\
+    > /etc/motd
+
 # Add bash entrypoint
 CMD ["bash"]
