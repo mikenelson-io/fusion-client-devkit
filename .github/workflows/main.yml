@@ -50,6 +50,9 @@ jobs:
           push: true
           provenance: false
           platforms: linux/amd64,linux/arm64
+          build-args: |
+            SWAGGER_UI_IMAGE=swagger-ui:${{ vars.SWAGGER_UI_VERSION }}
+            LOCAL_REGISTRY=localhost:5000/
           tags: |
             ${{ vars.IMAGE_REGISTRY }}/${{ vars.IMAGE_NAME }}:${{ github.ref_name }}
             ${{ vars.IMAGE_REGISTRY }}/${{ vars.IMAGE_NAME }}:latest
