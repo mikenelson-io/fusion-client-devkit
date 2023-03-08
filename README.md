@@ -76,8 +76,8 @@ docker run -it --rm -v $HOME/api-client:/default-client <image_name> bash
 # For Windows:
 docker run -it --rm -v //c/Users/fred/api-client:/api-client <image_name> bash
 
-# For Apple Silicon arm64 (since there is not a arm64 image):
-docker run --platform linux/amd64 -it --rm -v $HOME/api-client:/default-client <image_name> bash
+# For Apple Silicon arm64:
+docker run -it --rm -v $HOME/api-client:/default-client <image_name> bash
 
 # To access the Fusion API Swagger web interface, you can specify a port (ex. 8080) on the localhost:
 
@@ -88,7 +88,7 @@ docker run -p 8080:8080 -v $HOME/api-client:/default-client <image_name> bash
 docker run -p 8080:8080 -v //c/Users/fred/api-client:/default-client <image_name> bash
 
 # arm64:
-docker run --platform linux/amd64 -p 8080:8080 -v $HOME/api-client:/default-client <image_name> bash
+docker run -p 8080:8080 -v $HOME/api-client:/default-client <image_name> bash
 ```
 ### Aliases
 For convenience, you can also add an alias to shorten your command line. An alias is native to Linux. For Windows, you could use [doskey](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/doskey), [PowerShell Set-Alias](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/set-alias?view=powershell-7.3), or create a .cmd file.
