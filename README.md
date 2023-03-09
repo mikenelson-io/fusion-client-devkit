@@ -2,11 +2,12 @@
 
 [![Docker Repository on Quay](https://quay.io/repository/purestorage/fusion-devkit/status "Docker Repository on Quay")](https://quay.io/repository/purestorage/fusion-devkit)  ![GitHub version](https://img.shields.io/github/v/release/PureStorage-OpenConnect/fusion-client-devkit?color=orange)
 ## Setting up your Fusion DevKit Client
-:warning: _The code and instructions in this repository are **BETA** at this time_
+:warning: _The code and instructions in this repository are **BETA** at this time. This project is currently provided under the SLA of "best effort" support by the Pure Fusion Team. For feature requests and bugs, please use GitHub Issues and we actuvely encourage Pull requests for contributions to the code. We will address issues when resources allow._
 
 This repository is to help you install and configure the necessary tools to connect to and interact with a Fusion environment. The toolsets that are included are the Fusion API Swagger, hmctl CLI tool, Python, Ansible, and Terraform.
 
 If you would like a high level overview of Pure Fusion, please check out [this Youtube playlist](https://youtube.com/playlist?list=PLZcmbL4tTCUwv8UdACFAQZbkTtEjzob5I).
+
 ### Prerequisites
  - A Pure Fusion control plane supplied by Pure Storage
  - Pure1 Edge Services enabled in Pure1
