@@ -56,11 +56,9 @@
         name: "{{ item.name }}"
         display_name: "{{ item.display_name }}"
         availability_zone: "{{ item.availability_zone }}"
-        gateway: "{{ item.gateway }}"
-        addresses: "{{ item.address }}"
-        network_interface_groups: "{{ item.network_interface_groups }}"
         endpoint_type: "{{ item.endpoint_type }}"
         region: "{{ item.region }}"
+        iscsi: "{{ item.iscsi }}"
       loop: "{{ storage_endpoints }}"
 
     - name: Create new array(s)
