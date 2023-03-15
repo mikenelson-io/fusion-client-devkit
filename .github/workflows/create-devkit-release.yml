@@ -16,8 +16,37 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Validate major and minor semver input
+        run: |
+          major_minor_semver_regex='^(0|[1-9]\d*)\.(0|[1-9]\d*)$'
+          if [[ ! "${{ github.event.inputs.versionName }}" =~ $major_minor_semver_regex ]]; then
+            echo "Error: The provided major and minor semver string '${{ github.event.inputs.versionName }}' is invalid." 
+            exit 1
+          fi
+        shell: bash
+      - name: Validate patch semver input
+        run: |
+          patch_semver_regex='^(0|[1-9]\d*)(\-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?(\\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$'
+          if [[ ! "${{ github.event.inputs.patchName }}" =~ $patch_semver_regex ]]; then
+            echo "Error: The provided patch semver string '${{ github.event.inputs.patchName }}' is invalid." 
+            exit 1 
+          fi
+        shell: bash
+
       - name: Get tag
         run: echo RELEASE_TAG=v${{ github.event.inputs.versionName }}.${{ github.event.inputs.patchName }} >> $GITHUB_ENV
+
+      - name: Check if tag exists
+        env:
+          GITHUB_TOKEN: ${{ github.TOKEN }}
+        run: |
+          trap "exit 0" EXIT
+          response=$(gh api -H "Accept: application/vnd.github+json" /repos/${{ github.repository }}/git/ref/tags/$RELEASE_TAG)
+          if [[ "$response" == *"$RELEASE_TAG"* ]]; then
+            trap "exit 1" EXIT
+            echo "Error: Tag $RELEASE_TAG already exists"
+            exit 1 
+          fi
 
       - name: Get swagger-ui repo
         uses: actions/checkout@v3
