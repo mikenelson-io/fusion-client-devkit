@@ -19,7 +19,7 @@ If you would like a high level overview of Pure Fusion, please check out [this Y
  - Operating system compatability. The intial build of the DevKit was tested on Ubuntu 20.04 and Fedora 37. Since the DevKit can run as a Docker container, it should run on any platform supported by a Linux container. If using the Installer method, then currently only CentOS, Fedora, Ubuntu, or MacOS have been tested.
 
 	 - x86-64 Ubuntu/CentOS/Fedora linux machine, which could be a bare metal machine, Windows WSLv2, or a virtual machine
-	    - Docker (Docker Desktop for WSLv2)
+	    - Docker or Docker Desktop for WSLv2. You can run Docker in WSLv2 without installing Docker Desktop.
 	 - Apple Silicon (arm64) or Intel (amd64) machine running MacOS
 	    - Docker Desktop or equivalent installed
 	    - wget installed (for standalone script install)
@@ -36,7 +36,7 @@ There are two ways to get the tools:
 ## Docker Image (recommended method)
 
  - Notes: 
-	 - For Windows WSLv2, Windows, or MacOS, install Docker Desktop or equivalent before proceeding. Docker equivalents such as Podman and Multipass have not been tested, but will most likely work. If using WSL2 in Windows, ensure Docker Desktop is enabled for your distribution in the Docker Desktop Resource settings. [See this article for more information.](https://docs.docker.com/desktop/windows/wsl/)
+	 - For Windows (native) or MacOS, install Docker Desktop or equivalent before proceeding. You may use Docker Desktop for Windows if using WSLv2, but it is no longer necessary as you can run Docker in a WSLv2 distribution. If using WSLv2 in Windows with Docker Desktop, ensure  is enabled for your distribution in the Docker Desktop Resource settings. [See this article for more information.](https://docs.docker.com/desktop/windows/wsl/). Docker equivalents such as Podman and Multipass have not been tested, but will most likely work. 
 	 - Replace API_CLIENT_ID with the APP ID from your Provider or Pure1.
 	 - Replace PATH_TO_PRIV_KEY with the absolute path to the private key.pem file. The path must be absolute.
 
