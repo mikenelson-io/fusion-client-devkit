@@ -2,7 +2,7 @@ on:
   workflow_dispatch:
     inputs:
       patchName:
-        description: "Name of version patch"
+        description: "Name of version patch (x)"
         required: true
       updateLatest:
         type: boolean
@@ -18,10 +18,31 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Validate patch semver input
+        run: |
+          patch_semver_regex='^(0|[1-9]\d*)(\-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?(\\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$'
+          if [[ ! "${{ github.event.inputs.patchName }}" =~ $patch_semver_regex ]]; then
+            echo "Error: The provided patch semver string '${{ github.event.inputs.patchName }}' is invalid." 
+            exit 1 
+          fi
+        shell: bash
+
       - name: Get version
         run: echo CURRENT_VERSION="$(echo ${{ github.ref_name }} | sed -e "s/^release\///")" >> $GITHUB_ENV
       - name: Get tag
         run: echo PATCH_TAG=${{ env.CURRENT_VERSION }}.${{ github.event.inputs.patchName }} >> $GITHUB_ENV
+
+      - name: Check if tag exists
+        env:
+          GITHUB_TOKEN: ${{ github.TOKEN }}
+        run: |
+          trap "exit 0" EXIT
+          response=$(gh api -H "Accept: application/vnd.github+json" /repos/${{ github.repository }}/git/ref/tags/$PATCH_TAG)
+          if [[ "$response" == *"$PATCH_TAG"* ]]; then
+            trap "exit 1" EXIT
+            echo "Error: Tag $PATCH_TAG already exists"
+            exit 1 
+          fi
 
       - name: Get swagger-ui repo
         uses: actions/checkout@v3
