@@ -55,7 +55,7 @@ RUN export HMCTL_VERSION=$(grep -m 1 '"tag_name": "v1' releases.json | awk -F'"'
     wget -O /bin/hmctl https://github.com/PureStorage-OpenConnect/hmctl/releases/download/$HMCTL_VERSION/hmctl-linux-amd64 ; fi
 RUN chmod +x /bin/hmctl &&\
     mkdir /etc/bash_completion.d &&\
-    hmctl completion bash > /etc/bash_completion.d/hmctl %%\
+    hmctl completion bash > /etc/bash_completion.d/hmctl &&\
     rm releases.json 
 
 # Swagger settings
