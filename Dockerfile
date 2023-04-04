@@ -31,11 +31,12 @@ RUN if [ "$TARGETPLATFORM" = "linux/arm64" ] ; then apk add --no-cache python3-d
 # Clear cache
 RUN rm -rf /var/cache/apk/*
 
-# Install Python SDK and Ansible
-RUN pip3 install purefusion cryptography==3.4.8 ansible netaddr
+# Install Python SDK and Ansible 
+RUN pip3 install cryptography==3.4.8 ansible netaddr
+RUN pip3 install 'purefusion>=1.0.0,<2.0.0'
 
 # Install ansible's fusion collection
-RUN ansible-galaxy collection install purestorage.fusion
+RUN ansible-galaxy collection install 'purestorage.fusion:>=1.4.0,<2.0.0'
 
 COPY patches/modules/ /root/.ansible/collections/ansible_collections/purestorage/fusion/plugins/modules/
 COPY patches/module_utils/ /root/.ansible/collections/ansible_collections/purestorage/fusion/plugins/module_utils/
@@ -46,10 +47,16 @@ COPY python  ./samples/python
 COPY terraform ./samples/terraform
 
 # Install hmctl 
-RUN if [ "$TARGETPLATFORM" = "linux/arm64" ] ; then wget -O /bin/hmctl https://github.com/PureStorage-OpenConnect/hmctl/releases/latest/download/hmctl-linux-arm64 ; else wget -O /bin/hmctl https://github.com/PureStorage-OpenConnect/hmctl/releases/latest/download/hmctl-linux-amd64 ; fi
+RUN curl https://api.github.com/repos/PureStorage-OpenConnect/hmctl/releases > releases.json
+RUN export HMCTL_VERSION=$(grep -m 1 '"tag_name": "v1' releases.json | awk -F'"' '{print $4}') &&\
+    if [ "$TARGETPLATFORM" = "linux/arm64" ] ; then \
+    wget -O /bin/hmctl https://github.com/PureStorage-OpenConnect/hmctl/releases/download/$HMCTL_VERSION/hmctl-linux-arm64 ; \
+    else \
+    wget -O /bin/hmctl https://github.com/PureStorage-OpenConnect/hmctl/releases/download/$HMCTL_VERSION/hmctl-linux-amd64 ; fi
 RUN chmod +x /bin/hmctl &&\
     mkdir /etc/bash_completion.d &&\
-    hmctl completion bash > /etc/bash_completion.d/hmctl
+    hmctl completion bash > /etc/bash_completion.d/hmctl &&\
+    rm releases.json 
 
 # Swagger settings
 ENV SWAGGER_JSON=/generated_spec.yaml
