@@ -70,7 +70,7 @@ For Windows:
 5) Copy the private-key.pem file
 ```
 - Key must have `.pem` extension. 
-- As an alternative `PRIVATE_KEY_FILE=<key-file-name>` environment variable can be used, to specify exact file name of private key.- Key must have `.pem` extension. 
+- As an alternative `PRIVATE_KEY_FILE=<key-file-name>` environment variable can be used, to specify exact file name of private key.
 ### Spin up the Container
 
 _For the command lines below, replace <image_name> with either 'quay.io/purestorage/fusion-devkit' (if pulled from quay.io), or 'fusion-devkit' if downloaded manually from the GitHub repository._
