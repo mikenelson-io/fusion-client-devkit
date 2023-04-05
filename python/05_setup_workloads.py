@@ -1,10 +1,12 @@
-import fusion
 import os
 import pathlib
+
+import fusion
 import yaml
 from fusion.rest import ApiException
-from pprint import pprint
+
 from utils import wait_operation_succeeded
+
 
 def setup_workloads():
     print("Setting up workloads")
@@ -65,7 +67,7 @@ def setup_workloads():
                 display_name=host_access_policy["display_name"],
                 iqn=host_access_policy["iqn"],
                 personality=host_access_policy["personality"]
-                )
+            )
             try:
                 api_response = h.create_host_access_policy(current_host_access_policy)
                 # pprint(api_response)
@@ -90,10 +92,11 @@ def setup_workloads():
             except ApiException as e:
                 print("Exception when calling VolumesApi->create_volume: %s\n" % e)
             # Assign Host-Access-Policies to Volume
-            print("Updating volume", volume["name"], "with host access policies", volume["host_access_policies"], "in tenant space", current_tenant_space.name, "in tenant", workload["tenant"])
+            print("Updating volume", volume["name"], "with host access policies", volume["host_access_policies"], "in tenant space", current_tenant_space.name, "in tenant",
+                  workload["tenant"])
             current_volume_patch = fusion.VolumePatch(
                 host_access_policies=fusion.NullableString(volume["host_access_policies"])
-                )
+            )
             try:
                 api_response = v.update_volume(current_volume_patch, workload["tenant"], current_tenant_space.name, current_volume.name)
                 # pprint(api_response)
@@ -101,6 +104,7 @@ def setup_workloads():
             except ApiException as e:
                 print("Exception when calling VolumesApi->patch_volume: %s\n" % e)
     print("Done setting up workloads!")
+
 
 if __name__ == '__main__':
     setup_workloads()

@@ -1,8 +1,11 @@
 from __future__ import print_function
+
+from os import getenv
+from pprint import pprint
+
 import fusion
 from fusion.rest import ApiException
-from pprint import pprint
-from os import getenv
+
 
 def smoke_test():
     # Configure OAuth2 access token for authorization
@@ -25,6 +28,7 @@ def smoke_test():
         pprint(api_response)
     except ApiException as e:
         print("Exception when listing storage services: %s\n" % e)
+
 
 if __name__ == '__main__':
     smoke_test()

@@ -1,8 +1,10 @@
-import fusion
 import os
+
+import fusion
 from fusion.rest import ApiException
-from pprint import pprint
+
 from utils import wait_operation_succeeded
+
 
 def teardown_tenants():
     print("Tearing down tenants")
@@ -38,6 +40,7 @@ def teardown_tenants():
         except ApiException as e:
             print("Exception when calling TenantsApi->delete_tenant: %s\n" % e)
     print("Done tearing down tenants!")
+
 
 if __name__ == '__main__':
     teardown_tenants()

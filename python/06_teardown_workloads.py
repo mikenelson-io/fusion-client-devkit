@@ -1,8 +1,10 @@
-import fusion
 import os
+
+import fusion
 from fusion.rest import ApiException
-from pprint import pprint
+
 from utils import wait_operation_succeeded
+
 
 def teardown_workloads():
     print("Tearing down workloads")
@@ -117,6 +119,7 @@ def teardown_workloads():
         except ApiException as e:
             print("Exception when calling HostAccessPoliciesApi->delete_host_access_policy: %s\n" % e)
     print("Done tearing down workloads!")
+
 
 if __name__ == '__main__':
     teardown_workloads()

@@ -1,9 +1,11 @@
-import fusion
 import os
 import pathlib
+
+import fusion
 import yaml
-from pprint import pprint
+
 from utils import wait_operation_succeeded
+
 
 def setup_tenants():
     print("Setting up tenants")
@@ -34,6 +36,7 @@ def setup_tenants():
         except Exception as e:
             print("Exception when calling TenantsAPI->create_tenant: %s\n" % e)
     print("Done setting up tenants!")
+
 
 if __name__ == '__main__':
     setup_tenants()

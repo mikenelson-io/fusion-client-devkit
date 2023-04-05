@@ -1,8 +1,10 @@
-import fusion
 import os
+
+import fusion
 from fusion.rest import ApiException
-from pprint import pprint
+
 from utils import wait_operation_succeeded
+
 
 def teardown_storage_policies():
     print("Tearing down storage policies")
@@ -52,6 +54,7 @@ def teardown_storage_policies():
         except ApiException as e:
             print("Exception when calling StorageServicesApi->delete_storage_service: %s\n" % e)
     print("Done tearing down storage policies!")
+
 
 if __name__ == '__main__':
     teardown_storage_policies()

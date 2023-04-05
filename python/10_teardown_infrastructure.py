@@ -1,8 +1,10 @@
-import fusion
 import os
+
+import fusion
 from fusion.rest import ApiException
-from pprint import pprint
+
 from utils import wait_operation_succeeded
+
 
 def teardown_infrastructure():
     print("Tearing down infrastructure")
@@ -96,8 +98,9 @@ def teardown_infrastructure():
             # pprint(api_response)
             wait_operation_succeeded(api_response.id, client)
         except ApiException as e:
-            print("Exception when calling RegionsApi->delete_region: %s\n" % e)   
+            print("Exception when calling RegionsApi->delete_region: %s\n" % e)
     print("Done tearing down infrastructure!")
+
 
 if __name__ == '__main__':
     teardown_infrastructure()

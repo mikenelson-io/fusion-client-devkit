@@ -1,8 +1,10 @@
-import fusion
 import os
+
+import fusion
 from fusion.rest import ApiException
-from pprint import pprint
+
 from utils import wait_operation_succeeded
+
 
 def teardown_protection_policies():
     print("Tearing down protection policies")
@@ -33,6 +35,7 @@ def teardown_protection_policies():
     except ApiException as e:
         print("Exception when calling ProtectionPoliciesAPI->delete_protection_policy: %s\n" % e)
     print("Done tearing down protection policies!")
+
 
 if __name__ == '__main__':
     teardown_protection_policies()

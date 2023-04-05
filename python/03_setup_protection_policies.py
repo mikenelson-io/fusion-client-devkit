@@ -1,10 +1,11 @@
-import fusion
 import os
 import pathlib
+
+import fusion
 import yaml
-from fusion.rest import ApiException
-from pprint import pprint
+
 from utils import wait_operation_succeeded
+
 
 def setup_protection_policies():
     print("Setting up protection policies")
@@ -39,6 +40,7 @@ def setup_protection_policies():
         except Exception as e:
             print("Exception when calling ProtectionPoliciesAPI->create_protection_policy: %s\n" % e)
     print("Done setting up protection policies!")
+
 
 if __name__ == '__main__':
     setup_protection_policies()

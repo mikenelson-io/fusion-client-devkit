@@ -1,10 +1,12 @@
-import fusion
 import os
 import pathlib
+
+import fusion
 import yaml
 from fusion.rest import ApiException
-from pprint import pprint
+
 from utils import wait_operation_succeeded
+
 
 def setup_storage_policies():
     print("Setting up storage policies")
@@ -34,7 +36,7 @@ def setup_storage_policies():
             display_name=storage_service["display_name"],
             hardware_types=storage_service["hardware_types"]
         )
-        try:        
+        try:
             api_response = ss.create_storage_service(current_storage_service)
             # pprint(api_response)
             wait_operation_succeeded(api_response.id, client)
@@ -56,6 +58,7 @@ def setup_storage_policies():
             except ApiException as e:
                 print("Exception when calling StorageClassesApi->create_storage_class: %s\n" % e)
     print("Done setting up storage policies!")
+
 
 if __name__ == '__main__':
     setup_storage_policies()

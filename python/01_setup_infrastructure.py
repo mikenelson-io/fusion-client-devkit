@@ -1,10 +1,12 @@
-import fusion
 import os
 import pathlib
+
+import fusion
 import yaml
 from fusion.rest import ApiException
-from pprint import pprint
+
 from utils import wait_operation_succeeded
+
 
 def setup_infrastructure():
     print("Setting up infrastructure")
@@ -60,7 +62,7 @@ def setup_infrastructure():
                         prefix=network_interface_group["eth"]["prefix"],
                         mtu=network_interface_group["eth"]["mtu"]
                     )
-                    )
+                )
                 try:
                     api_response = nig.create_network_interface_group(current_nig, current_region.name, current_az.name)
                     # pprint(api_response)
@@ -75,9 +77,9 @@ def setup_infrastructure():
                     display_name=storage_endpoint["display_name"],
                     endpoint_type=storage_endpoint["endpoint_type"],
                     iscsi=fusion.StorageEndpointIscsiPost(
-                            discovery_interfaces= [fusion.StorageEndpointIscsiDiscoveryInterface(**endpoint) for endpoint in storage_endpoint["iscsi"]]
-                        )
+                        discovery_interfaces=[fusion.StorageEndpointIscsiDiscoveryInterface(**endpoint) for endpoint in storage_endpoint["iscsi"]]
                     )
+                )
                 try:
                     api_response = se.create_storage_endpoint(current_storage_endpoint, current_region.name, current_az.name)
                     # pprint(api_response)
@@ -110,7 +112,8 @@ def setup_infrastructure():
                     print("Exception when calling NetworkInterfacesApi->list_network_interfaces: %s\n" % e)
                 # Add Arrays into Availability Zone
                 for network_interface in ni_list.items:
-                    print("Connecting network interface", network_interface.name,"on array", array["name"], "to network_interface_group", network_interface_group["name"], "in availability zone", availability_zone["name"], "in region", region["name"])
+                    print("Connecting network interface", network_interface.name, "on array", array["name"], "to network_interface_group", network_interface_group["name"],
+                          "in availability zone", availability_zone["name"], "in region", region["name"])
                     patch_network_interface = fusion.NetworkInterfacePatch(network_interface_group=fusion.NullableString(network_interface_group["name"]))
                     try:
                         api_response = ni.update_network_interface(patch_network_interface, current_region.name, current_az.name, array["name"], network_interface.name)
@@ -119,6 +122,7 @@ def setup_infrastructure():
                     except ApiException as e:
                         print("Exception when calling StorageEndpointsApi->create_storage_endpoint: %s\n" % e)
     print("Done setting up infrastructure!")
+
 
 if __name__ == '__main__':
     setup_infrastructure()
