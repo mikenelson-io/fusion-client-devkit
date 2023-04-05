@@ -56,8 +56,11 @@ For Linux:
 cd $HOME
 mkdir api-client
 echo API_CLIENT_ID > api-client/issuer
-cp PATH_TO_PRIV_KEY api-client/
+cp PATH_TO_PRIV_KEY/private-key.pem  api-client/
 ```
+- Key must have `.pem` extension. 
+- As an alternative `PRIVATE_KEY_FILE=<key-file-name>` environment variable can be used, to specify exact file name of private key.
+
 For Windows:
 ```
 1) Open a command prompt or PowerShell window
@@ -66,6 +69,8 @@ For Windows:
 4) Copy the APP ID to a new file called "issuer" (no file extension)
 5) Copy the private-key.pem file
 ```
+- Key must have `.pem` extension. 
+- As an alternative `PRIVATE_KEY_FILE=<key-file-name>` environment variable can be used, to specify exact file name of private key.- Key must have `.pem` extension. 
 ### Spin up the Container
 
 _For the command lines below, replace <image_name> with either 'quay.io/purestorage/fusion-devkit' (if pulled from quay.io), or 'fusion-devkit' if downloaded manually from the GitHub repository._

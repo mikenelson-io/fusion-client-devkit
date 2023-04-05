@@ -12,9 +12,19 @@ if [ ! -f "$clientDir/issuer" ]; then
 	exit 1
 fi
 
-if [ ! -f "$clientDir/private-key.pem" ]; then
-	echo "private-key.pem not found. Did you add the file private-key.pem containing the private key into your client directory?"
-	exit 1
+# Find private key file
+if [ -n "$PRIVATE_KEY_FILE" ] && [ -f "$clientDir/$PRIVATE_KEY_FILE" ]; then
+  keyFile="$PRIVATE_KEY_FILE"
+elif [ -f "$clientDir/private-key.pem" ]; then
+  keyFile="private-key.pem"
+else
+  keyFile=$(basename $(find "$clientDir" -type f -iname "*.pem" | head -n 1))
+fi
+
+if [ -z "$keyFile" ] || [ ! -f "$clientDir/$keyFile" ]; then
+  echo "Private key not found. Add the file *.pem into your client directory"
+  echo "Or add PRIVATE_KEY_FILE=<key-file> env variable to docker run and <key-file> into your client directory"
+  exit 1 
 fi
 
 if [ ! -f "/root/.pure/fusion.json" ]; then
@@ -26,7 +36,7 @@ if [ ! -f "/root/.pure/fusion.json" ]; then
     "$clientName": {
       "auth": {
         "issuer_id": "$(cat $clientDir/issuer)",
-	"private_pem_file": "$(realpath $clientDir)/private-key.pem"
+	"private_pem_file": "$(realpath $clientDir)/$keyFile"
       },
       "endpoint": "https://api.pure1.purestorage.com/fusion",
       "env": "pure1"
@@ -36,7 +46,7 @@ if [ ! -f "/root/.pure/fusion.json" ]; then
 EOF
 fi
 
-export PRIV_KEY_FILE="$(realpath $clientDir)/private-key.pem"
+export PRIV_KEY_FILE="$(realpath $clientDir)/$keyFile"
 export API_CLIENT="$(cat $clientDir/issuer)"
 export FUSION_ISSUER_ID="$API_CLIENT"
 export FUSION_PRIVATE_KEY_FILE="$PRIV_KEY_FILE"
