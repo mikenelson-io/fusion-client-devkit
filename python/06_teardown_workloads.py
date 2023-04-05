@@ -16,7 +16,6 @@ def teardown_workloads():
     ts = fusion.TenantSpacesApi(api_client=client)
     pg = fusion.PlacementGroupsApi(api_client=client)
     v = fusion.VolumesApi(api_client=client)
-    h = fusion.HostAccessPoliciesApi(api_client=client)
     ss = fusion.SnapshotsApi(api_client=client)
     hap = fusion.HostAccessPoliciesApi(api_client=client)
 
@@ -51,8 +50,17 @@ def teardown_workloads():
                     wait_operation_succeeded(api_response.id, client)
                 except ApiException as e:
                     print("Exception when calling VolumesApi->patch_volume: %s\n" % e)
+                # Destroy volume (two-step volume deletion is enforced in Fusion, thus, volume has to be destroyed first, and eradicated then)
+                print("Destroying volume", volume.name, "in tenant space", tenant_space.name, "in tenant", tenant.name)
+                try:
+                    patch = fusion.VolumePatch(destroyed=fusion.NullableBoolean(True))
+                    api_response = v.update_volume(patch, tenant.name, tenant_space.name, volume.name)
+                    # pprint(api_response)
+                    wait_operation_succeeded(api_response.id, client)
+                except ApiException as e:
+                    print("Exception when calling VolumesApi->patch_volume: %s\n" % e)
                 # Delete Volume
-                print("Deleting volume", volume.name, "in tenant space", tenant_space.name, "in tenant", tenant.name)
+                print("Eradicating volume", volume.name, "in tenant space", tenant_space.name, "in tenant", tenant.name)
                 try:
                     api_response = v.delete_volume(tenant.name, tenant_space.name, volume.name)
                     # pprint(api_response)
