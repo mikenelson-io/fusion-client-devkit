@@ -24,7 +24,7 @@ def teardown_workloads():
         t_list = t.list_tenants()
         # pprint(t_list)
     except ApiException as e:
-        print("Exception when calling TenantsApi->list_tenants: %s\n" % e)
+        raise RuntimeError("Exception when calling TenantsApi->list_tenants") from e
 
     for tenant in t_list.items:
         # Get all Tenant Spaces in the Tenant
@@ -32,14 +32,16 @@ def teardown_workloads():
             ts_list = ts.list_tenant_spaces(tenant.name)
             # pprint(ts_list)
         except ApiException as e:
-            print("Exception when calling TenantSpacesApi->list_tenant_spaces: %s\n" % e)
+            raise RuntimeError("Exception when calling TenantSpacesApi->list_tenant_spaces") from e
+
         for tenant_space in ts_list.items:
             # Get all Volumes in the Tenant Space
             try:
                 v_list = v.list_volumes(tenant.name, tenant_space.name)
                 # pprint(v_list)
             except ApiException as e:
-                print("Exception when calling VolumesApi->list_volumes: %s\n" % e)
+                raise RuntimeError("Exception when calling VolumesApi->list_volumes") from e
+
             for volume in v_list.items:
                 # Detach all Host Access Policies from Volume
                 print("Detaching host access policies from volume", volume.name, "in tenant space", tenant_space.name, "in tenant", tenant.name)
@@ -49,7 +51,8 @@ def teardown_workloads():
                     # pprint(api_response)
                     wait_operation_succeeded(api_response.id, client)
                 except ApiException as e:
-                    print("Exception when calling VolumesApi->patch_volume: %s\n" % e)
+                    raise RuntimeError("Exception when calling VolumesApi->update_volume") from e
+
                 # Destroy volume (two-step volume deletion is enforced in Fusion, thus, volume has to be destroyed first, and eradicated then)
                 print("Destroying volume", volume.name, "in tenant space", tenant_space.name, "in tenant", tenant.name)
                 try:
@@ -58,7 +61,8 @@ def teardown_workloads():
                     # pprint(api_response)
                     wait_operation_succeeded(api_response.id, client)
                 except ApiException as e:
-                    print("Exception when calling VolumesApi->patch_volume: %s\n" % e)
+                    raise RuntimeError("Exception when calling VolumesApi->update_volume") from e
+
                 # Delete Volume
                 print("Eradicating volume", volume.name, "in tenant space", tenant_space.name, "in tenant", tenant.name)
                 try:
@@ -66,13 +70,15 @@ def teardown_workloads():
                     # pprint(api_response)
                     wait_operation_succeeded(api_response.id, client)
                 except ApiException as e:
-                    print("Exception when calling VolumesApi->delete_volume: %s\n" % e)
+                    raise RuntimeError("Exception when calling VolumesApi->delete_volume") from e
+
             # Get all Snapshots in the Tenant Space
             try:
                 ss_list = ss.list_snapshots(tenant.name, tenant_space.name)
                 # pprint(ss_list)
             except ApiException as e:
-                print("Exception when calling SnapshotsApi->list_snapshots: %s\n" % e)
+                raise RuntimeError("Exception when calling SnapshotsApi->list_snapshots") from e
+
             for snapshot in ss_list.items:
                 # Delete Snapshot
                 print("Deleting snapshot", snapshot.name, "in tenant space", tenant_space.name, "in tenant", tenant.name)
@@ -81,13 +87,15 @@ def teardown_workloads():
                     # pprint(api_response)
                     wait_operation_succeeded(api_response.id, client)
                 except ApiException as e:
-                    print("Exception when calling SnapshotsApi->delete_snapshot: %s\n" % e)
+                    raise RuntimeError("Exception when calling SnapshotsApi->delete_snapshot") from e
+
             # Get all Placement Groups in the Tenant Space
             try:
                 pg_list = pg.list_placement_groups(tenant.name, tenant_space.name)
                 # pprint(pg_list)
             except ApiException as e:
-                print("Exception when calling PlacementGroupsApi->list_placement_groups: %s\n" % e)
+                raise RuntimeError("Exception when calling PlacementGroupsApi->list_placement_groups") from e
+
             for placement_group in pg_list.items:
                 # Delete Placement Group
                 print("Deleting placement group", placement_group.name, "in tenant space", tenant_space.name, "in tenant", tenant.name)
@@ -96,7 +104,8 @@ def teardown_workloads():
                     # pprint(api_response)
                     wait_operation_succeeded(api_response.id, client)
                 except ApiException as e:
-                    print("Exception when calling PlacementGroupsApi->delete_placement_group: %s\n" % e)
+                    raise RuntimeError("Exception when calling PlacementGroupsApi->delete_placement_group") from e
+
             # Delete Tenant Space
             print("Deleting tenant space", tenant_space.name, "in tenant", tenant.name)
             try:
@@ -104,13 +113,15 @@ def teardown_workloads():
                 # pprint(api_response)
                 wait_operation_succeeded(api_response.id, client)
             except ApiException as e:
-                print("Exception when calling TenantSpaceApi->delete_tenant_space: %s\n" % e)
+                raise RuntimeError("Exception when calling TenantSpaceApi->delete_tenant_space") from e
+
     # Get Host Access Policies
     try:
         hap_list = hap.list_host_access_policies()
         # pprint(hap_list)
     except ApiException as e:
-        print("Exception when calling HostAccessPoliciesApi->list_host_access_policies: %s\n" % e)
+        raise RuntimeError("Exception when calling HostAccessPoliciesApi->list_host_access_policies") from e
+
     for host_access_policy in hap_list.items:
         # Delete Host Access Policy
         print("Deleting host access policy", host_access_policy.name)
@@ -119,7 +130,8 @@ def teardown_workloads():
             # pprint(api_response)
             wait_operation_succeeded(api_response.id, client)
         except ApiException as e:
-            print("Exception when calling HostAccessPoliciesApi->delete_host_access_policy: %s\n" % e)
+            raise RuntimeError("Exception when calling HostAccessPoliciesApi->delete_host_access_policy") from e
+
     print("Done tearing down workloads!")
 
 

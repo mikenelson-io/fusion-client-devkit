@@ -33,7 +33,8 @@ def setup_protection_policies():
             # pprint(api_response)
             wait_operation_succeeded(api_response.id, client)
         except Exception as e:
-            print("Exception when calling ProtectionPoliciesAPI->create_protection_policy: %s\n" % e)
+            raise RuntimeError("Exception when calling ProtectionPoliciesAPI->create_protection_policy") from e
+
     print("Done setting up protection policies!")
 
 

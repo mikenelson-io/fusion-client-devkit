@@ -29,7 +29,8 @@ def setup_tenants():
             # pprint(api_response)
             wait_operation_succeeded(api_response.id, client)
         except Exception as e:
-            print("Exception when calling TenantsAPI->create_tenant: %s\n" % e)
+            raise RuntimeError("Exception when calling TenantsAPI->create_tenant") from e
+
     print("Done setting up tenants!")
 
 

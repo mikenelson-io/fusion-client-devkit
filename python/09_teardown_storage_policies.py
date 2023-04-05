@@ -20,7 +20,7 @@ def teardown_storage_policies():
         ss_list = ss.list_storage_services()
         # pprint(ss_list)
     except ApiException as e:
-        print("Exception when calling StorageServicesApi->list_storage_services: %s\n" % e)
+        raise RuntimeError("Exception when calling StorageServicesApi->list_storage_services") from e
 
     for storage_service in ss_list.items:
         # Get all Storage Classes belonging to this Storage Service
@@ -28,7 +28,8 @@ def teardown_storage_policies():
             sc_list = sc.list_storage_classes(storage_service.name)
             # pprint(sc_list)
         except ApiException as e:
-            print("Exception when calling StorageServicesApi->list_storage_classes: %s\n" % e)
+            raise RuntimeError("Exception when calling StorageServicesApi->list_storage_classes") from e
+
         for storage_class in sc_list.items:
             # Delete the Storage Class
             print("Deleting storage class", storage_class.name, "in storage service", storage_service.name)
@@ -37,7 +38,8 @@ def teardown_storage_policies():
                 # pprint(api_response)
                 wait_operation_succeeded(api_response.id, client)
             except ApiException as e:
-                print("Exception when calling StorageClassesApi->delete_storage_class: %s\n" % e)
+                raise RuntimeError("Exception when calling StorageClassesApi->delete_storage_class") from e
+
         # Delete the Storage Service
         print("Deleting storage service", storage_service.name)
         try:
@@ -45,7 +47,8 @@ def teardown_storage_policies():
             # pprint(api_response)
             wait_operation_succeeded(api_response.id, client)
         except ApiException as e:
-            print("Exception when calling StorageServicesApi->delete_storage_service: %s\n" % e)
+            raise RuntimeError("Exception when calling StorageServicesApi->delete_storage_service") from e
+        
     print("Done tearing down storage policies!")
 
 

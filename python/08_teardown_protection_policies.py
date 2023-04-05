@@ -18,16 +18,17 @@ def teardown_protection_policies():
         api_response = pp.list_protection_policies()
         # pprint(api_response)
     except ApiException as e:
-        print("Exception when calling ProtectionPoliciesAPI->list_protection_policies: %s\n" % e)
+        raise RuntimeError("Exception when calling ProtectionPoliciesAPI->list_protection_policies") from e
 
-    try:
-        for protection_policy in api_response.items:
-            print("Deleting protection policy", protection_policy.name)
+    for protection_policy in api_response.items:
+        print("Deleting protection policy", protection_policy.name)
+        try:
             api_response = pp.delete_protection_policy(protection_policy.name)
             # pprint(api_response)
             wait_operation_succeeded(api_response.id, client)
-    except ApiException as e:
-        print("Exception when calling ProtectionPoliciesAPI->delete_protection_policy: %s\n" % e)
+        except ApiException as e:
+            raise RuntimeError("Exception when calling ProtectionPoliciesAPI->delete_protection_policy") from e
+
     print("Done tearing down protection policies!")
 
 

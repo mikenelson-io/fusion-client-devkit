@@ -14,16 +14,13 @@ def teardown_tenants():
     # get needed API clients
     t = fusion.TenantsApi(api_client=client)
 
-    engineering = fusion.TenantPost(name='engineering', display_name='engineering')
-    finance = fusion.TenantPost(name='finance', display_name='finance')
-    oracle_dbas = fusion.TenantPost(name='oracle_dbas', display_name='oracle_dbas')
-
     # Get all Tenants
     try:
         t_list = t.list_tenants()
         # pprint(t_list)
     except ApiException as e:
-        print("Exception when calling TenantsApi->list_tenants: %s\n" % e)
+        raise RuntimeError("Exception when calling TenantsApi->list_tenants") from e
+
     for tenant in t_list.items:
         # Delete Tenant
         print("Deleting tenant", tenant.name)
@@ -32,7 +29,8 @@ def teardown_tenants():
             # pprint(api_response)
             wait_operation_succeeded(api_response.id, client)
         except ApiException as e:
-            print("Exception when calling TenantsApi->delete_tenant: %s\n" % e)
+            raise RuntimeError("Exception when calling TenantsApi->delete_tenant") from e
+
     print("Done tearing down tenants!")
 
 

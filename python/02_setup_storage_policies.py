@@ -35,7 +35,8 @@ def setup_storage_policies():
             # pprint(api_response)
             wait_operation_succeeded(api_response.id, client)
         except ApiException as e:
-            print("Exception when calling StorageServicesApi->create_storage_service: %s\n" % e)
+            raise RuntimeError("Exception when calling StorageServicesApi->create_storage_service") from e
+
         for storage_class in storage_service["storage_classes"]:
             print("Creating storage class", storage_class["name"], "in storage service", storage_service["name"])
             current_storage_class = fusion.StorageClassPost(
@@ -50,7 +51,8 @@ def setup_storage_policies():
                 # pprint(api_response)
                 wait_operation_succeeded(api_response.id, client)
             except ApiException as e:
-                print("Exception when calling StorageClassesApi->create_storage_class: %s\n" % e)
+                raise RuntimeError("Exception when calling StorageClassesApi->create_storage_class") from e
+
     print("Done setting up storage policies!")
 
 
