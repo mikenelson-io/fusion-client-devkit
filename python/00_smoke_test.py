@@ -1,27 +1,20 @@
 from __future__ import print_function
 
-from os import getenv
 from pprint import pprint
 
 import fusion
 from fusion.rest import ApiException
 
+from utils import get_fusion_config
+
 
 def smoke_test():
-    # Configure OAuth2 access token for authorization
-    configuration = fusion.Configuration()
-    if getenv('HOST_ENDPOINT'):
-        configuration.host = getenv('HOST_ENDPOINT')
-    if getenv('TOKEN_ENDPOINT'):
-        configuration.token_endpoint = getenv('TOKEN_ENDPOINT')
-    configuration.issuer_id = getenv('API_CLIENT')
-    configuration.private_key_file = getenv('PRIV_KEY_FILE')
-
     # create an API client with your access Configuration
-    base_client = fusion.ApiClient(configuration)
+    config = get_fusion_config()
+    client = fusion.ApiClient(config)
 
     # create an API client for Storage Services
-    ss_client = fusion.StorageServicesApi(base_client)
+    ss_client = fusion.StorageServicesApi(client)
 
     try:
         api_response = ss_client.list_storage_services()

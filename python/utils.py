@@ -1,5 +1,6 @@
 import json
 import time
+import os
 
 import fusion
 
@@ -7,10 +8,41 @@ error_codes = {"INTERNAL", "NOT_FOUND", "ALREADY_EXISTS", "INVALID_ARGUMENT", "N
                "PERMISSION_DENIED", "NOT_IMPLEMENTED", "FAILED_PRECONDITION", "CONFLICT", "FAILED_TRANSACTION"}
 
 
+def get_fusion_config() -> fusion.Configuration:
+    """
+    Configure OAuth2 access token for authorization.
+    Retrieve Fusion configuration with custom `issuer_id`, `private_key_file`, `host` and `token_endpoint`.
+
+    Raises:
+        Exception
+
+    Returns:
+        fusion.Configuration
+    """
+    config = fusion.Configuration()
+
+    # required values
+    if "API_CLIENT" not in os.environ:
+        raise ValueError("Environmental variable 'API_CLIENT' is not set!")
+    if "PRIV_KEY_FILE" not in os.environ:
+        raise ValueError("Environmental variable 'PRIV_KEY_FILE' is not set!")
+    config.issuer_id = os.environ["API_CLIENT"]
+    config.private_key_file = os.environ["PRIV_KEY_FILE"]
+
+    # optional values
+    if "HOST_ENDPOINT" in os.environ:
+        config.host = os.environ["HOST_ENDPOINT"]
+    if "TOKEN_ENDPOINT" in os.environ:
+        config.token_endpoint = os.environ["TOKEN_ENDPOINT"]
+
+    return config
+
+
 def wait_operation_finish(op_id: str, client: fusion.ApiClient) -> fusion.models.operation.Operation:
     """
     wait_operation_finish wait until operation status is Succeeded or Failed. Then returns you that operation.
     if the operation takes longer than expected, it will raise an Exception
+
     Args:
         op_id (str): the id of operation
         client (fusion.ApiClient): 

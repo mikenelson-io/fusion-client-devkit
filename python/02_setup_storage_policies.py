@@ -1,26 +1,20 @@
-import os
 import pathlib
 
 import fusion
 import yaml
 from fusion.rest import ApiException
 
-from utils import wait_operation_succeeded
+from utils import get_fusion_config, wait_operation_succeeded
 
 
 def setup_storage_policies():
     print("Setting up storage policies")
-    # Setup Config
-    config = fusion.Configuration()
-    if os.getenv('HOST_ENDPOINT'):
-        config.host = os.getenv('HOST_ENDPOINT')
-    if os.getenv('TOKEN_ENDPOINT'):
-        config.token_endpoint = os.getenv('TOKEN_ENDPOINT')
-    config.issuer_id = os.getenv("API_CLIENT")
-    config.private_key_file = os.getenv("PRIV_KEY_FILE")
 
+    # create an API client with your access Configuration
+    config = get_fusion_config()
     client = fusion.ApiClient(config)
 
+    # get needed API clients
     ss = fusion.StorageServicesApi(api_client=client)
     sc = fusion.StorageClassesApi(api_client=client)
 

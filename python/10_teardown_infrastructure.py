@@ -1,23 +1,17 @@
-import os
-
 import fusion
 from fusion.rest import ApiException
 
-from utils import wait_operation_succeeded
+from utils import get_fusion_config, wait_operation_succeeded
 
 
 def teardown_infrastructure():
     print("Tearing down infrastructure")
-    # Setup Config
-    config = fusion.Configuration()
-    if os.getenv('HOST_ENDPOINT'):
-        config.host = os.getenv('HOST_ENDPOINT')
-    if os.getenv('TOKEN_ENDPOINT'):
-        config.token_endpoint = os.getenv('TOKEN_ENDPOINT')
-    config.issuer_id = os.getenv("API_CLIENT")
-    config.private_key_file = os.getenv("PRIV_KEY_FILE")
 
+    # create an API client with your access Configuration
+    config = get_fusion_config()
     client = fusion.ApiClient(config)
+
+    # get needed API clients
     r = fusion.RegionsApi(api_client=client)
     az = fusion.AvailabilityZonesApi(api_client=client)
     se = fusion.StorageEndpointsApi(api_client=client)
