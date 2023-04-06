@@ -70,6 +70,10 @@ jobs:
         run: docker run -d --name ${{ vars.TEMP_LOCAL_REGISTRY_NAME }} --network=host registry:2
         shell: bash
 
+      - name: Patch Dockerfile of swagger-ui docker image
+        run: sed -i "s/nginx:1.23.2-alpine/nginx:alpine/; s/nodejs>=16.17.1-r0/nodejs>=18.14.1-r0/" ./swagger-ui/Dockerfile
+        shell: bash
+
       - name: Build and push swagger-ui to local registry
         run: docker buildx build --push --provenance=false --network=host --platform linux/amd64,linux/arm64 -t localhost:5000/swagger-ui:${{ vars.SWAGGER_UI_VERSION }} ./swagger-ui/.
         shell: bash
@@ -81,7 +85,7 @@ jobs:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Build and push imgae public registry
+      - name: Build and push image public registry
         uses: docker/build-push-action@v4
         with:
           push: true
