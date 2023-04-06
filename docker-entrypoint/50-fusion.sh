@@ -18,7 +18,10 @@ if [ -n "$PRIVATE_KEY_FILE" ] && [ -f "$clientDir/$PRIVATE_KEY_FILE" ]; then
 elif [ -f "$clientDir/private-key.pem" ]; then
   keyFile="private-key.pem"
 else
-  keyFile=$(basename $(find "$clientDir" -type f -iname "*.pem" | head -n 1))
+  file=$(find "$clientDir" -type f -iname "*.pem" | head -n 1)
+  if [ -n "$file" ]; then 
+    keyFile=$(basename $file)
+  fi
 fi
 
 if [ -z "$keyFile" ] || [ ! -f "$clientDir/$keyFile" ]; then
