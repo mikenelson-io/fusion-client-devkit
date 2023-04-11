@@ -1,6 +1,7 @@
 import json
-import time
 import os
+import time
+from typing import Optional
 
 import fusion
 
@@ -38,14 +39,15 @@ def get_fusion_config() -> fusion.Configuration:
     return config
 
 
-def wait_operation_finish(op_id: str, client: fusion.ApiClient) -> fusion.models.operation.Operation:
+def wait_operation_finish(op_id: str, client: fusion.ApiClient, timeout: Optional[float] = None) -> fusion.models.operation.Operation:
     """
     wait_operation_finish wait until operation status is Succeeded or Failed. Then returns you that operation.
     if the operation takes longer than expected, it will raise an Exception
 
     Args:
         op_id (str): the id of operation
-        client (fusion.ApiClient): 
+        client (fusion.ApiClient):
+        timeout: timeout after which the function will exit
 
     Raises:
         Exception
@@ -54,10 +56,13 @@ def wait_operation_finish(op_id: str, client: fusion.ApiClient) -> fusion.models
         fusion.models.operation.Operation
     """
     op_cli = fusion.OperationsApi(client)
+    start_time = time.now()
     while True:
         op = op_cli.get_operation(op_id)
         if op.status == "Succeeded" or op.status == "Failed":
             return op
+        if timeout is not None and time.now() - start_time > timeout:
+            raise RuntimeError("Waiting for operation timed out.")
         time.sleep(op.retry_in / 1000)
 
 
