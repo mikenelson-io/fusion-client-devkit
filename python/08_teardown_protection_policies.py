@@ -1,38 +1,36 @@
 import fusion
-import os
 from fusion.rest import ApiException
-from pprint import pprint
-from utils import wait_operation_succeeded
+
+from utils import get_fusion_config, wait_operation_succeeded
+
 
 def teardown_protection_policies():
     print("Tearing down protection policies")
-    # Setup Config
-    config = fusion.Configuration()
-    if os.getenv('HOST_ENDPOINT'):
-        config.host = os.getenv('HOST_ENDPOINT')
-    if os.getenv('TOKEN_ENDPOINT'):
-        config.token_endpoint = os.getenv('TOKEN_ENDPOINT')
-    config.issuer_id = os.getenv("API_CLIENT")
-    config.private_key_file = os.getenv("PRIV_KEY_FILE")
 
+    # create an API client with your access Configuration
+    config = get_fusion_config()
     client = fusion.ApiClient(config)
+
+    # get needed API clients
     pp = fusion.ProtectionPoliciesApi(api_client=client)
 
     try:
         api_response = pp.list_protection_policies()
         # pprint(api_response)
     except ApiException as e:
-        print("Exception when calling ProtectionPoliciesAPI->list_protection_policies: %s\n" % e)
+        raise RuntimeError("Exception when calling ProtectionPoliciesAPI->list_protection_policies") from e
 
-    try:
-        for protection_policy in api_response.items:
-            print("Deleting protection policy", protection_policy.name)
+    for protection_policy in api_response.items:
+        print("Deleting protection policy", protection_policy.name)
+        try:
             api_response = pp.delete_protection_policy(protection_policy.name)
             # pprint(api_response)
             wait_operation_succeeded(api_response.id, client)
-    except ApiException as e:
-        print("Exception when calling ProtectionPoliciesAPI->delete_protection_policy: %s\n" % e)
+        except ApiException as e:
+            raise RuntimeError("Exception when calling ProtectionPoliciesAPI->delete_protection_policy") from e
+
     print("Done tearing down protection policies!")
+
 
 if __name__ == '__main__':
     teardown_protection_policies()

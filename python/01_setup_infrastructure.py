@@ -1,23 +1,20 @@
-import fusion
-import os
 import pathlib
+
+import fusion
 import yaml
 from fusion.rest import ApiException
-from pprint import pprint
-from utils import wait_operation_succeeded
+
+from utils import get_fusion_config, wait_operation_succeeded
+
 
 def setup_infrastructure():
     print("Setting up infrastructure")
-    # Setup Config
-    config = fusion.Configuration()
-    if os.getenv('HOST_ENDPOINT'):
-        config.host = os.getenv('HOST_ENDPOINT')
-    if os.getenv('TOKEN_ENDPOINT'):
-        config.token_endpoint = os.getenv('TOKEN_ENDPOINT')
-    config.issuer_id = os.getenv("API_CLIENT")
-    config.private_key_file = os.getenv("PRIV_KEY_FILE")
 
+    # create an API client with your access Configuration
+    config = get_fusion_config()
     client = fusion.ApiClient(config)
+
+    # get needed API clients
     r = fusion.RegionsApi(api_client=client)
     az = fusion.AvailabilityZonesApi(api_client=client)
     se = fusion.StorageEndpointsApi(api_client=client)
@@ -38,7 +35,8 @@ def setup_infrastructure():
             # pprint(api_response)
             wait_operation_succeeded(api_response.id, client)
         except ApiException as e:
-            print("Exception when calling RegionsApi->create_region: %s\n" % e)
+            raise RuntimeError("Exception when calling RegionsApi->create_region") from e
+
         # Create Availability Zones
         for availability_zone in region["availability_zones"]:
             print("Creating availability zone", availability_zone["name"], "in region", region["name"])
@@ -48,7 +46,8 @@ def setup_infrastructure():
                 # pprint(api_response)
                 wait_operation_succeeded(api_response.id, client)
             except ApiException as e:
-                print("Exception when calling AvailabilityZonesApi->create_availability_zone: %s\n" % e)
+                raise RuntimeError("Exception when calling AvailabilityZonesApi->create_availability_zone") from e
+
             # Create Network Interface Groups
             for network_interface_group in availability_zone["network_interface_groups"]:
                 print("Creating network interface group", network_interface_group["name"], "in availability zone", availability_zone["name"], "in region", region["name"])
@@ -60,13 +59,14 @@ def setup_infrastructure():
                         prefix=network_interface_group["eth"]["prefix"],
                         mtu=network_interface_group["eth"]["mtu"]
                     )
-                    )
+                )
                 try:
                     api_response = nig.create_network_interface_group(current_nig, current_region.name, current_az.name)
                     # pprint(api_response)
                     wait_operation_succeeded(api_response.id, client)
                 except ApiException as e:
-                    print("Exception when calling NetworkInterfaceGroupApi->create_network_interface_group: %s\n" % e)
+                    raise RuntimeError("Exception when calling NetworkInterfaceGroupApi->create_network_interface_group") from e
+
             # Create Storage Endpoints
             for storage_endpoint in availability_zone["storage_endpoints"]:
                 print("Creating storage endpoint", storage_endpoint["name"], "in availability zone", availability_zone["name"], "in region", region["name"])
@@ -75,15 +75,16 @@ def setup_infrastructure():
                     display_name=storage_endpoint["display_name"],
                     endpoint_type=storage_endpoint["endpoint_type"],
                     iscsi=fusion.StorageEndpointIscsiPost(
-                            discovery_interfaces= [fusion.StorageEndpointIscsiDiscoveryInterface(**endpoint) for endpoint in storage_endpoint["iscsi"]]
-                        )
+                        discovery_interfaces=[fusion.StorageEndpointIscsiDiscoveryInterface(**endpoint) for endpoint in storage_endpoint["iscsi"]]
                     )
+                )
                 try:
                     api_response = se.create_storage_endpoint(current_storage_endpoint, current_region.name, current_az.name)
                     # pprint(api_response)
                     wait_operation_succeeded(api_response.id, client)
                 except ApiException as e:
-                    print("Exception when calling StorageEndpointsApi->create_storage_endpoint: %s\n" % e)
+                    raise RuntimeError("Exception when calling StorageEndpointsApi->create_storage_endpoint") from e
+
             # Add Arrays into Availability Zone
             for array in availability_zone["arrays"]:
                 print("Creating array", array["name"], "in availability zone", availability_zone["name"], "in region", region["name"])
@@ -93,7 +94,8 @@ def setup_infrastructure():
                     # pprint(api_response)
                     wait_operation_succeeded(api_response.id, client)
                 except ApiException as e:
-                    print("Exception when calling StorageEndpointsApi->create_storage_endpoint: %s\n" % e)
+                    raise RuntimeError("Exception when calling ArrayApi->create_array") from e
+
                 print("Turning off maintenance mode on array", array["name"], "in availability zone", availability_zone["name"], "in region", region["name"])
                 patch_array = fusion.ArrayPatch(maintenance_mode=fusion.NullableBoolean(False))
                 try:
@@ -101,24 +103,29 @@ def setup_infrastructure():
                     # pprint(api_response)
                     wait_operation_succeeded(api_response.id, client)
                 except ApiException as e:
-                    print("Exception when calling StorageEndpointsApi->create_storage_endpoint: %s\n" % e)
+                    raise RuntimeError("Exception when calling ArrayApi->update_array") from e
+
                 try:
                     ni_list = ni.list_network_interfaces(current_region.name, current_az.name, array["name"])
                     # pprint(ni_list)
                     wait_operation_succeeded(api_response.id, client)
                 except ApiException as e:
-                    print("Exception when calling NetworkInterfacesApi->list_network_interfaces: %s\n" % e)
+                    raise RuntimeError("Exception when calling NetworkInterfacesApi->list_network_interfaces") from e
+
                 # Add Arrays into Availability Zone
                 for network_interface in ni_list.items:
-                    print("Connecting network interface", network_interface.name,"on array", array["name"], "to network_interface_group", network_interface_group["name"], "in availability zone", availability_zone["name"], "in region", region["name"])
+                    print("Connecting network interface", network_interface.name, "on array", array["name"], "to network_interface_group", network_interface_group["name"],
+                          "in availability zone", availability_zone["name"], "in region", region["name"])
                     patch_network_interface = fusion.NetworkInterfacePatch(network_interface_group=fusion.NullableString(network_interface_group["name"]))
                     try:
                         api_response = ni.update_network_interface(patch_network_interface, current_region.name, current_az.name, array["name"], network_interface.name)
                         # pprint(api_response)
                         wait_operation_succeeded(api_response.id, client)
                     except ApiException as e:
-                        print("Exception when calling StorageEndpointsApi->create_storage_endpoint: %s\n" % e)
+                        raise RuntimeError("Exception when calling NetworkInterfacesApi->update_network_interface") from e
+
     print("Done setting up infrastructure!")
+
 
 if __name__ == '__main__':
     setup_infrastructure()

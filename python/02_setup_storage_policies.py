@@ -1,24 +1,20 @@
-import fusion
-import os
 import pathlib
+
+import fusion
 import yaml
 from fusion.rest import ApiException
-from pprint import pprint
-from utils import wait_operation_succeeded
+
+from utils import get_fusion_config, wait_operation_succeeded
+
 
 def setup_storage_policies():
     print("Setting up storage policies")
-    # Setup Config
-    config = fusion.Configuration()
-    if os.getenv('HOST_ENDPOINT'):
-        config.host = os.getenv('HOST_ENDPOINT')
-    if os.getenv('TOKEN_ENDPOINT'):
-        config.token_endpoint = os.getenv('TOKEN_ENDPOINT')
-    config.issuer_id = os.getenv("API_CLIENT")
-    config.private_key_file = os.getenv("PRIV_KEY_FILE")
 
+    # create an API client with your access Configuration
+    config = get_fusion_config()
     client = fusion.ApiClient(config)
 
+    # get needed API clients
     ss = fusion.StorageServicesApi(api_client=client)
     sc = fusion.StorageClassesApi(api_client=client)
 
@@ -34,12 +30,13 @@ def setup_storage_policies():
             display_name=storage_service["display_name"],
             hardware_types=storage_service["hardware_types"]
         )
-        try:        
+        try:
             api_response = ss.create_storage_service(current_storage_service)
             # pprint(api_response)
             wait_operation_succeeded(api_response.id, client)
         except ApiException as e:
-            print("Exception when calling StorageServicesApi->create_storage_service: %s\n" % e)
+            raise RuntimeError("Exception when calling StorageServicesApi->create_storage_service") from e
+
         for storage_class in storage_service["storage_classes"]:
             print("Creating storage class", storage_class["name"], "in storage service", storage_service["name"])
             current_storage_class = fusion.StorageClassPost(
@@ -54,8 +51,10 @@ def setup_storage_policies():
                 # pprint(api_response)
                 wait_operation_succeeded(api_response.id, client)
             except ApiException as e:
-                print("Exception when calling StorageClassesApi->create_storage_class: %s\n" % e)
+                raise RuntimeError("Exception when calling StorageClassesApi->create_storage_class") from e
+
     print("Done setting up storage policies!")
+
 
 if __name__ == '__main__':
     setup_storage_policies()

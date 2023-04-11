@@ -1,17 +1,53 @@
-import fusion
-import time
 import json
+import os
+import time
+from typing import Optional
 
-error_codes = {"INTERNAL","NOT_FOUND","ALREADY_EXISTS","INVALID_ARGUMENT","NOT_AUTHENTICATED",
-                  "PERMISSION_DENIED","NOT_IMPLEMENTED","FAILED_PRECONDITION","CONFLICT","FAILED_TRANSACTION"}
+import fusion
 
-def wait_operation_finish(op_id:str, client:fusion.ApiClient) -> fusion.models.operation.Operation:
+error_codes = {"INTERNAL", "NOT_FOUND", "ALREADY_EXISTS", "INVALID_ARGUMENT", "NOT_AUTHENTICATED",
+               "PERMISSION_DENIED", "NOT_IMPLEMENTED", "FAILED_PRECONDITION", "CONFLICT", "FAILED_TRANSACTION"}
+
+
+def get_fusion_config() -> fusion.Configuration:
+    """
+    Configure OAuth2 access token for authorization.
+    Retrieve Fusion configuration with custom `issuer_id`, `private_key_file`, `host` and `token_endpoint`.
+
+    Raises:
+        Exception
+
+    Returns:
+        fusion.Configuration
+    """
+    config = fusion.Configuration()
+
+    # required values
+    if "API_CLIENT" not in os.environ:
+        raise ValueError("Environmental variable 'API_CLIENT' is not set!")
+    if "PRIV_KEY_FILE" not in os.environ:
+        raise ValueError("Environmental variable 'PRIV_KEY_FILE' is not set!")
+    config.issuer_id = os.environ["API_CLIENT"]
+    config.private_key_file = os.environ["PRIV_KEY_FILE"]
+
+    # optional values
+    if "HOST_ENDPOINT" in os.environ:
+        config.host = os.environ["HOST_ENDPOINT"]
+    if "TOKEN_ENDPOINT" in os.environ:
+        config.token_endpoint = os.environ["TOKEN_ENDPOINT"]
+
+    return config
+
+
+def wait_operation_finish(op_id: str, client: fusion.ApiClient, timeout: Optional[float] = None) -> fusion.models.operation.Operation:
     """
     wait_operation_finish wait until operation status is Succeeded or Failed. Then returns you that operation.
     if the operation takes longer than expected, it will raise an Exception
+
     Args:
         op_id (str): the id of operation
-        client (fusion.ApiClient): 
+        client (fusion.ApiClient):
+        timeout: timeout after which the function will exit
 
     Raises:
         Exception
@@ -20,13 +56,17 @@ def wait_operation_finish(op_id:str, client:fusion.ApiClient) -> fusion.models.o
         fusion.models.operation.Operation
     """
     op_cli = fusion.OperationsApi(client)
+    start_time = time.now()
     while True:
         op = op_cli.get_operation(op_id)
         if op.status == "Succeeded" or op.status == "Failed":
             return op
+        if timeout is not None and time.now() - start_time > timeout:
+            raise RuntimeError("Waiting for operation timed out.")
         time.sleep(op.retry_in / 1000)
 
-def wait_operation_succeeded(op_id:str, client:fusion.ApiClient) -> fusion.models.operation.Operation:
+
+def wait_operation_succeeded(op_id: str, client: fusion.ApiClient) -> fusion.models.operation.Operation:
     """
     wait_operation_succeeded calls wait_operation_finish and expect the result is succeeded.
     if the operation is in other status, it will raise an expection
@@ -42,7 +82,7 @@ def wait_operation_succeeded(op_id:str, client:fusion.ApiClient) -> fusion.model
         fusion.models.operation.Operation
     """
     op = wait_operation_finish(op_id, client)
-    if op.status == "Succeeded" or op.error.pure_code == "ALREADY_EXISTS": # Probably risky but we're going with it
+    if op.status == "Succeeded" or op.error.pure_code == "ALREADY_EXISTS":  # Probably risky but we're going with it
         return op
     else:
         # this is how we handle asynchronous error
@@ -50,6 +90,7 @@ def wait_operation_succeeded(op_id:str, client:fusion.ApiClient) -> fusion.model
         # op.error uses fusion.models.error.Error
         print_error(op.error)
         raise Exception(f"operation did not succeed! {op}")
+
 
 def ApiException_to_ErrorResponse(e: fusion.rest.ApiException) -> fusion.models.error_response.ErrorResponse:
     """
@@ -69,7 +110,8 @@ def ApiException_to_ErrorResponse(e: fusion.rest.ApiException) -> fusion.models.
     err = fusion.models.error.Error(**err_dict)
     return fusion.models.error_response.ErrorResponse(request_id=error_response_dict['request_id'], error=err)
 
-def print_error(err:fusion.models.error.Error):
+
+def print_error(err: fusion.models.error.Error):
     """
     this function prints all fields in Error
 

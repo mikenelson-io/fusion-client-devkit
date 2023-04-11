@@ -1,23 +1,20 @@
-import fusion
-import os
 import pathlib
+
+import fusion
 import yaml
 from fusion.rest import ApiException
-from pprint import pprint
-from utils import wait_operation_succeeded
+
+from utils import get_fusion_config, wait_operation_succeeded
+
 
 def setup_workloads():
     print("Setting up workloads")
-    # Setup Config
-    config = fusion.Configuration()
-    if os.getenv('HOST_ENDPOINT'):
-        config.host = os.getenv('HOST_ENDPOINT')
-    if os.getenv('TOKEN_ENDPOINT'):
-        config.token_endpoint = os.getenv('TOKEN_ENDPOINT')
-    config.issuer_id = os.getenv("API_CLIENT")
-    config.private_key_file = os.getenv("PRIV_KEY_FILE")
 
+    # create an API client with your access Configuration
+    config = get_fusion_config()
     client = fusion.ApiClient(config)
+
+    # get needed API clients
     ts = fusion.TenantSpacesApi(api_client=client)
     pg = fusion.PlacementGroupsApi(api_client=client)
     v = fusion.VolumesApi(api_client=client)
@@ -39,7 +36,7 @@ def setup_workloads():
             # pprint(api_response)
             wait_operation_succeeded(api_response.id, client)
         except ApiException as e:
-            print("Exception when calling TenantSpacesApi->create_tenant_space: %s\n" % e)
+            raise RuntimeError("Exception when calling TenantSpacesApi->create_tenant_space") from e
 
         # Create Placement Groups
         for placement_group in workload["placement_groups"]:
@@ -56,7 +53,8 @@ def setup_workloads():
                 # pprint(api_response)
                 wait_operation_succeeded(api_response.id, client)
             except ApiException as e:
-                print("Exception when calling PlacementGroupsApi->create_placement_group: %s\n" % e)
+                raise RuntimeError("Exception when calling PlacementGroupsApi->create_placement_group") from e
+
         # Create Host-Access-Policy
         for host_access_policy in workload["host_access_policies"]:
             print("Creating host access policy", host_access_policy["name"])
@@ -65,13 +63,14 @@ def setup_workloads():
                 display_name=host_access_policy["display_name"],
                 iqn=host_access_policy["iqn"],
                 personality=host_access_policy["personality"]
-                )
+            )
             try:
                 api_response = h.create_host_access_policy(current_host_access_policy)
                 # pprint(api_response)
                 wait_operation_succeeded(api_response.id, client)
             except ApiException as e:
-                print("Exception when calling HostAccessPoliciesApi->create_host_access_policy: %s\n" % e)
+                raise RuntimeError("Exception when calling HostAccessPoliciesApi->create_host_access_policy") from e
+
         # Create Volumes
         for volume in workload["volumes"]:
             print("Creating volume", volume["name"], "in tenant space", current_tenant_space.name, "in tenant", workload["tenant"])
@@ -88,19 +87,23 @@ def setup_workloads():
                 # pprint(api_response)
                 wait_operation_succeeded(api_response.id, client)
             except ApiException as e:
-                print("Exception when calling VolumesApi->create_volume: %s\n" % e)
+                raise RuntimeError("Exception when calling VolumesApi->create_volume") from e
+
             # Assign Host-Access-Policies to Volume
-            print("Updating volume", volume["name"], "with host access policies", volume["host_access_policies"], "in tenant space", current_tenant_space.name, "in tenant", workload["tenant"])
+            print("Updating volume", volume["name"], "with host access policies", volume["host_access_policies"], "in tenant space", current_tenant_space.name, "in tenant",
+                  workload["tenant"])
             current_volume_patch = fusion.VolumePatch(
                 host_access_policies=fusion.NullableString(volume["host_access_policies"])
-                )
+            )
             try:
                 api_response = v.update_volume(current_volume_patch, workload["tenant"], current_tenant_space.name, current_volume.name)
                 # pprint(api_response)
                 wait_operation_succeeded(api_response.id, client)
             except ApiException as e:
-                print("Exception when calling VolumesApi->patch_volume: %s\n" % e)
+                raise RuntimeError("Exception when calling VolumesApi->update_volume") from e
+
     print("Done setting up workloads!")
+
 
 if __name__ == '__main__':
     setup_workloads()
