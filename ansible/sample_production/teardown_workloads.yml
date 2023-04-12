@@ -29,7 +29,7 @@
       ansible.builtin.set_fact:
         map_volumes: >-
           {{ map_volumes|combine(
-          { item.value.name.lower() : { 'serial':(prefix_disk + item.value.serial_number).lower(), 'iqn':(item.value.target.iscsi.iqn).lower()} }
+          { item.value.name.lower() : { 'serial':item.value.serial_number, 'iqn':(item.value.target.iscsi.iqn).lower()} }
           ) }}
       with_dict: "{{ fusion_info['fusion_info']['volumes'] }}"
 
@@ -69,7 +69,7 @@
     - name: Volumes to unmount
       ansible.builtin.debug:
         msg:
-          - "Unmount: /dev/mapper/{{ item.value.serial }}-part1"
+          - "Unmount: /dev/mapper/{{ item.value.serial }}"
           - "From: {{ item.key }}"
       with_dict: "{{ devices }}"
 
