@@ -109,7 +109,7 @@
       ansible.builtin.set_fact:
         map_volumes: >-
           {{ map_volumes|combine(
-          { item.value.name.lower() : { 'serial':(prefix_disk + item.value.serial_number).lower(), 'iqn':(item.value.target.iscsi.iqn).lower()} }
+          { item.value.name.lower() : { 'serial':item.value.serial_number, 'iqn':(item.value.target.iscsi.iqn).lower()} }
           ) }}
       with_dict: "{{ fusion_info['fusion_info']['volumes'] }}"
 
@@ -185,17 +185,10 @@
         target: "{{ item }}"
       loop: "{{ iqn_list }}"
 
-    - name: Create a primary partition
-      community.general.parted:
-        device: "/dev/mapper/{{ item.value.serial }}"
-        number: 1
-        state: present
-      with_dict: "{{ devices }}"
-
-    - name: Create/check ext4 partition
+    - name: Format multipath device
       community.general.filesystem:
         fstype: ext4
-        dev: "/dev/mapper/{{ item.value.serial }}-part1"
+        dev: "/dev/mapper/{{ item.value.serial }}"
       with_dict: "{{ devices }}"
 
     - name: Creates directory for mountpoints
@@ -208,7 +201,7 @@
     - name: Mount volumes
       ansible.posix.mount:
         path: "{{ item.key }}"
-        src: "/dev/mapper/{{ item.value.serial }}-part1"
+        src: "/dev/mapper/{{ item.value.serial }}"
         fstype: ext4
         state: mounted
       with_dict: "{{ devices }}"
@@ -226,14 +219,15 @@
 
     - name: Run FIO process
       when: run_fio is true
-      ansible.builtin.command:
+      ansible.builtin.shell:
         chdir: "{{ item.mount_path }}"
         cmd: "fio /tmp/initiator_random_write.fio"
       with_items: "{{ hostvars['localhost']['volumes'] }}"
-      register: ps
+      register: raw_stdout_fio_results
       changed_when: true
 
     - name: FIO Results
       when: run_fio is true
       ansible.builtin.debug:
-        var: "ps.stdout_lines"
+        var: "{{ item.stdout_lines }}"
+      loop: "{{ raw_stdout_fio_results.results }}"
