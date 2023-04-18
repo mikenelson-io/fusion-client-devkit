@@ -28,8 +28,8 @@
     - name: Map Volumes with (Serial ID and IQN )
       ansible.builtin.set_fact:
         map_volumes: >-
-          {{ map_volumes|combine(
-          { item.value.name.lower() : { 'serial':item.value.serial_number, 'iqn':(item.value.target.iscsi.iqn).lower()} }
+          {{ map_volumes | combine(
+            {item.value.name.lower() : {'serial': item.value.serial_number, 'iqn': (item.value.target.iscsi.iqn).lower()}}
           ) }}
       with_dict: "{{ fusion_info['fusion_info']['volumes'] }}"
 
@@ -56,13 +56,13 @@
 
     - name: Obtain list of volumes to umount
       ansible.builtin.set_fact:
-        valid_volumes: "{{ valid_volumes|combine( {item.name: item.mount_path} ) }}"
+        valid_volumes: "{{ valid_volumes | combine({item.name: item.mount_path}) }}"
       with_items: "{{ hostvars['localhost']['volumes'] }}"
       when: inventory_hostname in item.host_access_policies
 
     - name: Parse volume, mount path and volume id
       ansible.builtin.set_fact:
-        devices: "{{ devices|combine( { valid_volumes[item.key]:item.value } ) }}"
+        devices: "{{ devices | combine({valid_volumes[item.key]: item.value}) }}"
       with_dict: "{{ hostvars['localhost']['map_volumes'] }}"
       when: item.key in valid_volumes.keys()
 
@@ -83,7 +83,7 @@
 
     - name: Obtain a list of volumes that fail to unmount
       ansible.builtin.set_fact:
-        failed_unmount: "{{ failed_unmount + [ item.item.key] }}"
+        failed_unmount: "{{ failed_unmount + [item.item.key] }}"
       when: item.failed
       with_items: "{{ unmount_report.results }}"
       delegate_facts: true
@@ -91,7 +91,7 @@
 
     - name: Get a list of IQN with unique elements
       ansible.builtin.set_fact:
-        iqn_list: "{{ iqn_list + [ item.value.iqn ] }}"
+        iqn_list: "{{ iqn_list + [item.value.iqn] }}"
       with_dict: "{{ devices }}"
       when: item.value.iqn not in iqn_list
 
@@ -132,7 +132,7 @@
 
     - name: Create IQN/Hostname dictionary
       ansible.builtin.set_fact:
-        iqn_data: "{{ iqn_data|default({}) + [ {'hostname':item, 'iqn':(hostvars[item]['iqn'].stdout)} ] }}"
+        iqn_data: "{{ iqn_data | default([]) + [{'hostname': item, 'iqn': (hostvars[item]['iqn'].stdout)}] }}"
       with_items:
         - "{{ groups['Initiators_Hosts'] }}"
 

@@ -18,6 +18,7 @@
         state: present  # or absent
         name: az1
         display_name: "az1"
+        region: region1
 
     - name: Create new network interface group
       purestorage.fusion.fusion_nig:
