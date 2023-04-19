@@ -43,7 +43,7 @@
 
     - name: Create IQN/Hostname dictionary
       ansible.builtin.set_fact:
-        iqn_data: "{{ iqn_data|default({}) + [ {'hostname':item, 'iqn':(hostvars[item]['iqn'].stdout)} ] }}"
+        iqn_data: "{{ iqn_data | default([]) + [{'hostname': item, 'iqn': (hostvars[item]['iqn'].stdout)}] }}"
       with_items:
         - "{{ groups['Initiators_Hosts'] }}"
 
@@ -57,4 +57,4 @@
         personality: "linux"
         iqn: "{{ item.iqn }}"
       with_items: "{{ iqn_data }}"
-      when: item.iqn|length > 0
+      when: item.iqn | length > 0

@@ -43,7 +43,7 @@
 
     - name: Create IQN/Hostname dictionary
       ansible.builtin.set_fact:
-        iqn_data: "{{ iqn_data|default({}) + [ {'hostname':item, 'iqn':(hostvars[item]['iqn'].stdout)} ] }}"
+        iqn_data: "{{ iqn_data | default([]) + [{'hostname': item, 'iqn': (hostvars[item]['iqn'].stdout)}] }}"
       with_items:
         - "{{ groups['Initiators_Hosts'] }}"
 
@@ -57,7 +57,7 @@
         personality: "linux"
         iqn: "{{ item.iqn }}"
       with_items: "{{ iqn_data }}"
-      when: item.iqn|length > 0
+      when: item.iqn | length > 0
 
     - name: Create new tenant space(s)
       purestorage.fusion.fusion_ts:
@@ -108,8 +108,8 @@
     - name: Map Volumes with (Serial ID and IQN )
       ansible.builtin.set_fact:
         map_volumes: >-
-          {{ map_volumes|combine(
-          { item.value.name.lower() : { 'serial':item.value.serial_number, 'iqn':(item.value.target.iscsi.iqn).lower()} }
+          {{ map_volumes | combine(
+            {item.value.name.lower(): {'serial': item.value.serial_number, 'iqn': (item.value.target.iscsi.iqn).lower()}}
           ) }}
       with_dict: "{{ fusion_info['fusion_info']['volumes'] }}"
 
@@ -135,7 +135,7 @@
 
     - name: Obtain list of volumes to mount
       ansible.builtin.set_fact:
-        valid_volumes: "{{ valid_volumes|combine( {item.name: item.mount_path} ) }}"
+        valid_volumes: "{{ valid_volumes | combine({item.name: item.mount_path}) }}"
       with_items: "{{ hostvars['localhost']['volumes'] }}"
       when: inventory_hostname in item.host_access_policies
 
@@ -145,7 +145,7 @@
 
     - name: Parse volume, mount path and volume id
       ansible.builtin.set_fact:
-        devices: "{{ devices|combine( { valid_volumes[item.key]:item.value } ) }}"
+        devices: "{{ devices | combine({valid_volumes[item.key]: item.value}) }}"
       with_dict: "{{ hostvars['localhost']['map_volumes'] }}"
       when: item.key in valid_volumes.keys()
 
@@ -175,7 +175,7 @@
 
     - name: Get a list of IQN with unique elements
       ansible.builtin.set_fact:
-        iqn_list: "{{ iqn_list + [ item.value.iqn ] }}"
+        iqn_list: "{{ iqn_list + [item.value.iqn] }}"
       with_dict: "{{ devices }}"
       when: item.value.iqn not in iqn_list
 
@@ -195,7 +195,7 @@
       ansible.builtin.file:
         path: "{{ item.key }}"
         state: directory
-        mode: 0755
+        mode: "0755"
       with_dict: "{{ devices }}"
 
     - name: Mount volumes
@@ -215,11 +215,11 @@
       ansible.builtin.copy:
         src: "./files/initiator_random_write.fio"
         dest: "/tmp/initiator_random_write.fio"
-        mode: 0644
+        mode: "0644"
 
     - name: Run FIO process
       when: run_fio is true
-      ansible.builtin.shell:
+      ansible.builtin.command:
         chdir: "{{ item.mount_path }}"
         cmd: "fio /tmp/initiator_random_write.fio"
       with_items: "{{ hostvars['localhost']['volumes'] }}"

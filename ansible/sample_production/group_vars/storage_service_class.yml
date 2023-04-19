@@ -2,11 +2,11 @@
 storage_service:
   - name: Storage-C
     display_name: Storage C
-    hardware_types: 
+    hardware_types:
       - flash-array-c
   - name: Storage-X
     display_name: Storage X
-    hardware_types: 
+    hardware_types:
       - flash-array-x
   - name: generic
     display_name: generic
@@ -19,7 +19,7 @@ storage_class:
   - name: capacity
     display_name: capacity
     storage_service: Storage-C
-    iops_limit: 1000  
+    iops_limit: 1000
     bw_limit: 100M
     size_limit: 5T
   - name: boot
