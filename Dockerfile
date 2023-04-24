@@ -38,9 +38,6 @@ RUN pip3 install 'purefusion>=1.0.0,<2.0.0'
 # Install ansible's fusion collection
 RUN ansible-galaxy collection install 'purestorage.fusion:>=1.4.0,<2.0.0'
 
-COPY patches/modules/ /root/.ansible/collections/ansible_collections/purestorage/fusion/plugins/modules/
-COPY patches/module_utils/ /root/.ansible/collections/ansible_collections/purestorage/fusion/plugins/module_utils/
-
 # Get ansible playbooks, terraform plans, and python scripts
 COPY ansible  ./samples/ansible
 COPY python  ./samples/python
