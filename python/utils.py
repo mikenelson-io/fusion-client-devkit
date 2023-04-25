@@ -9,6 +9,12 @@ error_codes = {"INTERNAL", "NOT_FOUND", "ALREADY_EXISTS", "INVALID_ARGUMENT", "N
                "PERMISSION_DENIED", "NOT_IMPLEMENTED", "FAILED_PRECONDITION", "CONFLICT", "FAILED_TRANSACTION"}
 
 
+ENV_VAR_FUSION_ISSUER_ID = "FUSION_ISSUER_ID"
+ENV_VAR_FUSION_PRIVATE_KEY_FILE = "FUSION_PRIVATE_KEY_FILE"
+ENV_VAR_FUSION_TOKEN_ENDPOINT = "FUSION_TOKEN_ENDPOINT"
+ENV_VAR_FUSION_API_HOST = "FUSION_API_HOST"
+ENV_VAR_FUSION_ACCESS_TOKEN = "FUSION_ACCESS_TOKEN"
+
 def get_fusion_config() -> fusion.Configuration:
     """
     Configure OAuth2 access token for authorization.
@@ -23,18 +29,21 @@ def get_fusion_config() -> fusion.Configuration:
     config = fusion.Configuration()
 
     # required values
-    if "API_CLIENT" not in os.environ:
-        raise ValueError("Environmental variable 'API_CLIENT' is not set!")
-    if "PRIV_KEY_FILE" not in os.environ:
-        raise ValueError("Environmental variable 'PRIV_KEY_FILE' is not set!")
-    config.issuer_id = os.environ["API_CLIENT"]
-    config.private_key_file = os.environ["PRIV_KEY_FILE"]
+    if (ENV_VAR_FUSION_ISSUER_ID not in os.environ or ENV_VAR_FUSION_PRIVATE_KEY_FILE not in os.environ) and ENV_VAR_FUSION_ACCESS_TOKEN not in os.environ:
+        raise ValueError(
+            f"Environmental variables neither '{ENV_VAR_FUSION_ISSUER_ID}' and '{ENV_VAR_FUSION_PRIVATE_KEY_FILE} nor '{ENV_VAR_FUSION_ACCESS_TOKEN}' are set!"
+        )
+
+    if ENV_VAR_FUSION_ACCESS_TOKEN in os.environ:
+        config.access_token = os.environ[ENV_VAR_FUSION_ACCESS_TOKEN]
+    config.issuer_id = os.environ[ENV_VAR_FUSION_ISSUER_ID]
+    config.private_key_file = os.environ[ENV_VAR_FUSION_PRIVATE_KEY_FILE]
 
     # optional values
-    if "HOST_ENDPOINT" in os.environ:
-        config.host = os.environ["HOST_ENDPOINT"]
-    if "TOKEN_ENDPOINT" in os.environ:
-        config.token_endpoint = os.environ["TOKEN_ENDPOINT"]
+    if ENV_VAR_FUSION_API_HOST in os.environ:
+        config.host = os.environ[ENV_VAR_FUSION_API_HOST] + "/api/1.0"
+    if ENV_VAR_FUSION_TOKEN_ENDPOINT in os.environ:
+        config.token_endpoint = os.environ[ENV_VAR_FUSION_TOKEN_ENDPOINT]
 
     return config
 
