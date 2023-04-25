@@ -156,7 +156,7 @@ To run a smoke test:
 ```
 ansible-playbook ansible/smoke_test.yml
 ```
-After installation, there are sample playbooks provided in the /ansible folder, and you can check out the ansible collection from the [Ansible documentation page here](https://docs.ansible.com/ansible/latest/collections/purestorage/fusion/index.html#plugins-in-purestorage-fusion) for more information on the individual modules.
+There are sample playbooks provided in the [ansible-playbook-examples](https://github.com/PureStorage-OpenConnect/ansible-playbook-examples) repository, and you can check out the ansible collection from the [Ansible documentation page here](https://docs.ansible.com/ansible/latest/collections/purestorage/fusion/index.html#plugins-in-purestorage-fusion) for more information on the individual modules.
 
 ### Terraform
 Our Terraform provider supports only consumer workflows in Fusion, not Provider workflows at this time. Terraform does not allow for a full smoke test since it is a consumer-focused provider and requires more Fusion configuration before it can execute.

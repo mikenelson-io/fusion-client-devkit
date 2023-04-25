@@ -42,9 +42,11 @@ COPY patches/modules/ /root/.ansible/collections/ansible_collections/purestorage
 COPY patches/module_utils/ /root/.ansible/collections/ansible_collections/purestorage/fusion/plugins/module_utils/
 
 # Get ansible playbooks, terraform plans, and python scripts
-COPY ansible  ./samples/ansible
 COPY python  ./samples/python
 COPY terraform ./samples/terraform
+RUN git clone https://github.com/PureStorage-OpenConnect/ansible-playbook-examples.git ./ansible-playbook-examples &&\
+    mv ./ansible-playbook-examples/fusion ./samples/ansible &&\
+    rm -rf ./ansible-playbook-examples
 
 # Install hmctl 
 RUN curl https://api.github.com/repos/PureStorage-OpenConnect/hmctl/releases > releases.json
