@@ -94,8 +94,8 @@ def wait_operation_succeeded(op_id: str, client: fusion.ApiClient) -> fusion.mod
         fusion.models.operation.Operation
     """
     op = wait_operation_finish(op_id, client)
-    # Probably risky but we're going with it
-    if op.status == "Succeeded" or op.error.pure_code == "ALREADY_EXISTS":
+
+    if op.status == "Succeeded":
         return op
     else:
         # this is how we handle asynchronous error
@@ -107,7 +107,7 @@ def wait_operation_succeeded(op_id: str, client: fusion.ApiClient) -> fusion.mod
 
 def ApiException_to_ErrorResponse(e: fusion.rest.ApiException) -> fusion.models.error_response.ErrorResponse:
     """
-        the current swagger spec only allow the response of most request to be Operation. 
+        the current swagger spec only allow the response of most request to be Operation.
         So when it sees different response body such as ErrorResponse it will raise an ApiException.
         But the body of ApiException still contains all information for ErrorResponse.
         This function is used to convert the ApiException to ErrorResponse.
