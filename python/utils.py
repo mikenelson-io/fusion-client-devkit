@@ -2,11 +2,19 @@ import json
 import os
 import time
 from typing import Optional
-
+from urllib.parse import urljoin
 import fusion
 
 error_codes = {"INTERNAL", "NOT_FOUND", "ALREADY_EXISTS", "INVALID_ARGUMENT", "NOT_AUTHENTICATED",
                "PERMISSION_DENIED", "NOT_IMPLEMENTED", "FAILED_PRECONDITION", "CONFLICT", "FAILED_TRANSACTION"}
+
+
+ENV_VAR_FUSION_ISSUER_ID = "FUSION_ISSUER_ID"
+ENV_VAR_FUSION_PRIVATE_KEY_FILE = "FUSION_PRIVATE_KEY_FILE"
+ENV_VAR_FUSION_TOKEN_ENDPOINT = "FUSION_TOKEN_ENDPOINT"
+ENV_VAR_FUSION_API_HOST = "FUSION_API_HOST"
+ENV_VAR_FUSION_ACCESS_TOKEN = "FUSION_ACCESS_TOKEN"
+BASE_PATH = "api/1.1"
 
 
 def get_fusion_config() -> fusion.Configuration:
@@ -23,18 +31,22 @@ def get_fusion_config() -> fusion.Configuration:
     config = fusion.Configuration()
 
     # required values
-    if "API_CLIENT" not in os.environ:
-        raise ValueError("Environmental variable 'API_CLIENT' is not set!")
-    if "PRIV_KEY_FILE" not in os.environ:
-        raise ValueError("Environmental variable 'PRIV_KEY_FILE' is not set!")
-    config.issuer_id = os.environ["API_CLIENT"]
-    config.private_key_file = os.environ["PRIV_KEY_FILE"]
+    if (ENV_VAR_FUSION_ISSUER_ID not in os.environ or ENV_VAR_FUSION_PRIVATE_KEY_FILE not in os.environ) and ENV_VAR_FUSION_ACCESS_TOKEN not in os.environ:
+        raise ValueError(
+            f"Environmental variables neither '{ENV_VAR_FUSION_ISSUER_ID}' and '{ENV_VAR_FUSION_PRIVATE_KEY_FILE} nor '{ENV_VAR_FUSION_ACCESS_TOKEN}' are set!"
+        )
+
+    if ENV_VAR_FUSION_ACCESS_TOKEN in os.environ:
+        config.access_token = os.environ[ENV_VAR_FUSION_ACCESS_TOKEN]
+    if ENV_VAR_FUSION_ISSUER_ID in os.environ and ENV_VAR_FUSION_PRIVATE_KEY_FILE in os.environ:
+        config.issuer_id = os.environ[ENV_VAR_FUSION_ISSUER_ID]
+        config.private_key_file = os.environ[ENV_VAR_FUSION_PRIVATE_KEY_FILE]
 
     # optional values
-    if "HOST_ENDPOINT" in os.environ:
-        config.host = os.environ["HOST_ENDPOINT"]
-    if "TOKEN_ENDPOINT" in os.environ:
-        config.token_endpoint = os.environ["TOKEN_ENDPOINT"]
+    if ENV_VAR_FUSION_API_HOST in os.environ:
+        config.host = urljoin(os.environ[ENV_VAR_FUSION_API_HOST], BASE_PATH)
+    if ENV_VAR_FUSION_TOKEN_ENDPOINT in os.environ:
+        config.token_endpoint = os.environ[ENV_VAR_FUSION_TOKEN_ENDPOINT]
 
     return config
 
@@ -82,7 +94,8 @@ def wait_operation_succeeded(op_id: str, client: fusion.ApiClient) -> fusion.mod
         fusion.models.operation.Operation
     """
     op = wait_operation_finish(op_id, client)
-    if op.status == "Succeeded" or op.error.pure_code == "ALREADY_EXISTS":  # Probably risky but we're going with it
+    # Probably risky but we're going with it
+    if op.status == "Succeeded" or op.error.pure_code == "ALREADY_EXISTS":
         return op
     else:
         # this is how we handle asynchronous error
