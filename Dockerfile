@@ -72,5 +72,7 @@ RUN mv /docker-entrypoint.sh /nginx-entrypoint.sh
 COPY docker-entrypoint/docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
+LABEL maintainer="purestorage"
+
 # Add bash entrypoint
 CMD ["bash"]
