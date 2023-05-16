@@ -1,8 +1,7 @@
-import datetime
 import json
 import os
 import time
-from typing import Optional, Union
+from typing import Optional
 from urllib.parse import urljoin
 import fusion
 
@@ -52,7 +51,7 @@ def get_fusion_config() -> fusion.Configuration:
     return config
 
 
-def wait_operation_finish(op_id: str, client: fusion.ApiClient, timeout: Optional[Union[float, datetime.timedelta]] = None) -> fusion.models.operation.Operation:
+def wait_operation_finish(op_id: str, client: fusion.ApiClient, timeout: Optional[float] = None) -> fusion.models.operation.Operation:
     """
     wait_operation_finish wait until operation status is Succeeded or Failed. Then returns you that operation.
     if the operation takes longer than expected, it will raise an Exception
@@ -69,13 +68,12 @@ def wait_operation_finish(op_id: str, client: fusion.ApiClient, timeout: Optiona
         fusion.models.operation.Operation
     """
     op_cli = fusion.OperationsApi(client)
-    start_time = datetime.datetime.now()
-    timeout = timeout if isinstance(timeout, datetime.timedelta) else datetime.timedelta(seconds=timeout) if timeout is not None else None
+    start_time = time.time()
     while True:
         op = op_cli.get_operation(op_id)
         if op.status == "Succeeded" or op.status == "Failed":
             return op
-        if timeout is not None and datetime.datetime.now() - start_time > timeout:
+        if timeout is not None and time.time() - start_time > timeout:
             raise RuntimeError("Waiting for operation timed out.")
         time.sleep(op.retry_in / 1000)
 
