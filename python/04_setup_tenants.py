@@ -3,7 +3,8 @@ import pathlib
 import fusion
 import yaml
 
-from utils import get_fusion_config, wait_operation_succeeded
+from utils import get_fusion_config, wait_operation_succeeded, ResourceNameReserved
+import getters
 
 
 def setup_tenants():
@@ -27,7 +28,10 @@ def setup_tenants():
         try:
             api_response = t.create_tenant(current_tenant)
             # pprint(api_response)
-            wait_operation_succeeded(api_response.id, client)
+            wait_operation_succeeded(api_response.id, client, resource_getter=getters.tenant_getter(t, current_tenant.name))
+        except ResourceNameReserved as e:
+            if not e.resource_exists:
+                raise e
         except Exception as e:
             raise RuntimeError("Exception when calling TenantsAPI->create_tenant") from e
 

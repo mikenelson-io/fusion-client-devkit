@@ -3,7 +3,8 @@ import pathlib
 import fusion
 import yaml
 
-from utils import get_fusion_config, wait_operation_succeeded
+from utils import get_fusion_config, wait_operation_succeeded, ResourceNameReserved
+import getters
 
 
 def setup_protection_policies():
@@ -29,11 +30,16 @@ def setup_protection_policies():
             objectives=protection_policy["objectives"]
         )
         try:
-            api_response = pp.create_protection_policy(current_protection_policy)
+            api_response = pp.create_protection_policy(
+                current_protection_policy)
             # pprint(api_response)
-            wait_operation_succeeded(api_response.id, client)
+            wait_operation_succeeded(api_response.id, client, resource_getter=getters.protection_policy_getter(pp, current_protection_policy.name))
+        except ResourceNameReserved as e:
+            if not e.resource_exists:
+                raise e
         except Exception as e:
-            raise RuntimeError("Exception when calling ProtectionPoliciesAPI->create_protection_policy") from e
+            raise RuntimeError(
+                "Exception when calling ProtectionPoliciesAPI->create_protection_policy") from e
 
     print("Done setting up protection policies!")
 

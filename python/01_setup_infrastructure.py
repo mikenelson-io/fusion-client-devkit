@@ -4,8 +4,8 @@ import fusion
 import yaml
 from fusion.rest import ApiException
 
-from utils import get_fusion_config, wait_operation_succeeded
-
+from utils import get_fusion_config, wait_operation_succeeded, ResourceNameReserved
+import getters
 
 def setup_infrastructure():
     print("Setting up infrastructure")
@@ -33,7 +33,10 @@ def setup_infrastructure():
         try:
             api_response = r.create_region(current_region)
             # pprint(api_response)
-            wait_operation_succeeded(api_response.id, client)
+            wait_operation_succeeded(api_response.id, client,resource_getter=getters.region_getter(r,current_region.name))
+        except ResourceNameReserved as e:
+            if not e.resource_exists:
+                raise e
         except ApiException as e:
             raise RuntimeError("Exception when calling RegionsApi->create_region") from e
 
@@ -44,7 +47,10 @@ def setup_infrastructure():
             try:
                 api_response = az.create_availability_zone(current_az, current_region.name)
                 # pprint(api_response)
-                wait_operation_succeeded(api_response.id, client)
+                wait_operation_succeeded(api_response.id, client,resource_getter=getters.availability_zone_getter(az,current_region.name,current_az.name))
+            except ResourceNameReserved as e:
+                if not e.resource_exists:
+                    raise e
             except ApiException as e:
                 raise RuntimeError("Exception when calling AvailabilityZonesApi->create_availability_zone") from e
 
@@ -63,7 +69,10 @@ def setup_infrastructure():
                 try:
                     api_response = nig.create_network_interface_group(current_nig, current_region.name, current_az.name)
                     # pprint(api_response)
-                    wait_operation_succeeded(api_response.id, client)
+                    wait_operation_succeeded(api_response.id, client,resource_getter=getters.network_interface_groups_getter(nig,current_region.name,current_az.name,current_nig.name))
+                except ResourceNameReserved as e:
+                    if not e.resource_exists:
+                        raise e
                 except ApiException as e:
                     raise RuntimeError("Exception when calling NetworkInterfaceGroupApi->create_network_interface_group") from e
 
@@ -81,7 +90,10 @@ def setup_infrastructure():
                 try:
                     api_response = se.create_storage_endpoint(current_storage_endpoint, current_region.name, current_az.name)
                     # pprint(api_response)
-                    wait_operation_succeeded(api_response.id, client)
+                    wait_operation_succeeded(api_response.id, client, resource_getter=getters.storage_endpoint_getter(se,current_region.name,current_az.name,current_storage_endpoint.name))
+                except ResourceNameReserved as e:
+                    if not e.resource_exists:
+                        raise e
                 except ApiException as e:
                     raise RuntimeError("Exception when calling StorageEndpointsApi->create_storage_endpoint") from e
 
@@ -92,7 +104,10 @@ def setup_infrastructure():
                 try:
                     api_response = a.create_array(current_array, current_region.name, current_az.name)
                     # pprint(api_response)
-                    wait_operation_succeeded(api_response.id, client)
+                    wait_operation_succeeded(api_response.id, client, resource_getter=getters.array_getter(a,current_region.name,current_az.name,current_array.name))
+                except ResourceNameReserved as e:
+                    if not e.resource_exists:
+                        raise e
                 except ApiException as e:
                     raise RuntimeError("Exception when calling ArrayApi->create_array") from e
 
@@ -107,8 +122,6 @@ def setup_infrastructure():
 
                 try:
                     ni_list = ni.list_network_interfaces(current_region.name, current_az.name, array["name"])
-                    # pprint(ni_list)
-                    wait_operation_succeeded(api_response.id, client)
                 except ApiException as e:
                     raise RuntimeError("Exception when calling NetworkInterfacesApi->list_network_interfaces") from e
 
