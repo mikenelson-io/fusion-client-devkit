@@ -18,6 +18,8 @@
 
 ARG LOCAL_REGISTRY=localhost:5000/ SWAGGER_UI_IMAGE=swagger-ui:v4.15.5
 
+ARG ANSIBLE_PLAYBOOKS_COMMIT=df67f78
+
 FROM ${LOCAL_REGISTRY}${SWAGGER_UI_IMAGE}
 
 # Install required tools
@@ -42,6 +44,9 @@ RUN ansible-galaxy collection install 'purestorage.fusion:>=1.4.0,<2.0.0'
 COPY python  ./samples/python
 COPY terraform ./samples/terraform
 RUN git clone https://github.com/PureStorage-OpenConnect/ansible-playbook-examples.git ./ansible-playbook-examples &&\
+    cd ./ansible-playbook-examples &&\
+    git reset --hard $ANSIBLE_PLAYBOOKS_COMMIT &&\
+    cd ..  &&\
     mv ./ansible-playbook-examples/fusion ./samples/ansible &&\
     rm -rf ./ansible-playbook-examples
 
