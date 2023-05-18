@@ -1,7 +1,7 @@
 import fusion
 
 
-def array_getter(array_api_instance: fusion.ArraysApi, region_name, availability_zone_name, array_name):
+def array_getter(array_api_instance: fusion.ArraysApi, region_name: str, availability_zone_name: str, array_name: str):
     """Returns get Array function"""
 
     def get_array():
@@ -18,7 +18,7 @@ def array_getter(array_api_instance: fusion.ArraysApi, region_name, availability
     return get_array
 
 
-def availability_zone_getter(az_api_instance: fusion.AvailabilityZonesApi, region_name, availability_zone_name):
+def availability_zone_getter(az_api_instance: fusion.AvailabilityZonesApi, region_name: str, availability_zone_name: str):
     """Returns get Availability Zone function"""
 
     def get_az():
@@ -34,7 +34,7 @@ def availability_zone_getter(az_api_instance: fusion.AvailabilityZonesApi, regio
     return get_az
 
 
-def region_getter(region_api_instance: fusion.RegionsApi, region_name):
+def region_getter(region_api_instance: fusion.RegionsApi, region_name: str):
     """Returns get Region function"""
 
     def get_region():
@@ -49,7 +49,7 @@ def region_getter(region_api_instance: fusion.RegionsApi, region_name):
     return get_region
 
 
-def storage_service_getter(ss_api_instance: fusion.StorageService, storage_service_name):
+def storage_service_getter(ss_api_instance: fusion.StorageService, storage_service_name: str):
     """Returns get Storage Sevice function"""
 
     def get_ss():
@@ -64,7 +64,7 @@ def storage_service_getter(ss_api_instance: fusion.StorageService, storage_servi
     return get_ss
 
 
-def storage_class_getter(sc_api_instance: fusion.StorageClass, storage_sevice_name, storage_class_name):
+def storage_class_getter(sc_api_instance: fusion.StorageClass, storage_sevice_name: str, storage_class_name: str):
     """Returns get Storage Class function"""
 
     def get_sc():
@@ -80,7 +80,7 @@ def storage_class_getter(sc_api_instance: fusion.StorageClass, storage_sevice_na
     return get_sc
 
 
-def protection_policy_getter(pp_api_instance: fusion.ProtectionPoliciesApi, protection_policy_name):
+def protection_policy_getter(pp_api_instance: fusion.ProtectionPoliciesApi, protection_policy_name: str):
     """Returns get Protection Policy function"""
 
     def get_pp():
@@ -95,7 +95,7 @@ def protection_policy_getter(pp_api_instance: fusion.ProtectionPoliciesApi, prot
     return get_pp
 
 
-def network_interface_groups_getter(nig_api_instance: fusion.NetworkInterfacesApi, region_name, availability_zone_name, network_interface_group_name):
+def network_interface_groups_getter(nig_api_instance: fusion.NetworkInterfacesApi, region_name: str, availability_zone_name: str, network_interface_group_name: str):
     """Returns get Network Interface Group function"""
 
     def get_nig():
@@ -111,7 +111,7 @@ def network_interface_groups_getter(nig_api_instance: fusion.NetworkInterfacesAp
     return get_nig
 
 
-def storage_endpoint_getter(se_instance: fusion.StorageEndpointsApi, region_name, availability_zone_name, storage_endpoint_name):
+def storage_endpoint_getter(se_instance: fusion.StorageEndpointsApi, region_name: str, availability_zone_name: str, storage_endpoint_name: str):
     """Returns get Storage Endpoint function"""
 
     def get_se():
@@ -127,7 +127,7 @@ def storage_endpoint_getter(se_instance: fusion.StorageEndpointsApi, region_name
     return get_se
 
 
-def tenant_getter(tenant_api_instance: fusion.TenantsApi, tenant_name):
+def tenant_getter(tenant_api_instance: fusion.TenantsApi, tenant_name: str):
     """Returns get Tenant function"""
 
     def get_tenant():
@@ -140,7 +140,7 @@ def tenant_getter(tenant_api_instance: fusion.TenantsApi, tenant_name):
     return get_tenant
 
 
-def tenant_space_getter(ts_api_instance: fusion.TenantSpacesApi, tenant_name, tenant_space_name):
+def tenant_space_getter(ts_api_instance: fusion.TenantSpacesApi, tenant_name: str, tenant_space_name: str):
     """Returns get Tenant Space function"""
 
     def get_ts():
@@ -156,7 +156,7 @@ def tenant_space_getter(ts_api_instance: fusion.TenantSpacesApi, tenant_name, te
     return get_ts
 
 
-def placement_group_getter(pg_api_instance: fusion.PlacementGroupsApi, tenant_name, tenant_space_name, placement_group_name):
+def placement_group_getter(pg_api_instance: fusion.PlacementGroupsApi, tenant_name: str, tenant_space_name: str, placement_group_name: str):
     """Returns get Placement Group function"""
 
     def get_pg():
@@ -173,7 +173,7 @@ def placement_group_getter(pg_api_instance: fusion.PlacementGroupsApi, tenant_na
     return get_pg
 
 
-def host_access_policy_getter(hap_api_instance: fusion.HostAccessPoliciesApi, host_access_policy_name):
+def host_access_policy_getter(hap_api_instance: fusion.HostAccessPoliciesApi, host_access_policy_name: str):
     """Returns get Host Access Policy function"""
 
     def get_hap():
@@ -188,7 +188,7 @@ def host_access_policy_getter(hap_api_instance: fusion.HostAccessPoliciesApi, ho
     return get_hap
 
 
-def volume_getter(vol_api_instance: fusion.VolumesApi, tenant_name, tenant_space_name, volume_name):
+def volume_getter(vol_api_instance: fusion.VolumesApi, tenant_name: str, tenant_space_name: str, volume_name: str):
     """Returns get Volumefunction"""
 
     def get_vol():
