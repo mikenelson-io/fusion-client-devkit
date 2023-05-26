@@ -54,13 +54,16 @@ RUN git clone https://github.com/PureStorage-OpenConnect/ansible-playbook-exampl
 RUN curl https://api.github.com/repos/PureStorage-OpenConnect/hmctl/releases > releases.json
 RUN export HMCTL_VERSION=$(grep -m 1 '"tag_name": "v1' releases.json | awk -F'"' '{print $4}') &&\
     if [ "$TARGETPLATFORM" = "linux/arm64" ] ; then \
-    wget -O /bin/hmctl https://github.com/PureStorage-OpenConnect/hmctl/releases/download/$HMCTL_VERSION/hmctl-linux-arm64 ; \
+    wget https://github.com/PureStorage-OpenConnect/hmctl/releases/download/$HMCTL_VERSION/hmctl-linux-arm64.tar.gz &&\
+    tar -xf hmctl-linux-arm64.tar.gz -C /bin ; \
     else \
-    wget -O /bin/hmctl https://github.com/PureStorage-OpenConnect/hmctl/releases/download/$HMCTL_VERSION/hmctl-linux-amd64 ; fi
+    wget https://github.com/PureStorage-OpenConnect/hmctl/releases/download/$HMCTL_VERSION/hmctl-linux-amd64.tar.gz &&\
+    tar -xf hmctl-linux-amd64.tar.gz -C /bin ; fi
 RUN chmod +x /bin/hmctl &&\
     mkdir /etc/bash_completion.d &&\
     hmctl completion bash > /etc/bash_completion.d/hmctl &&\
-    rm releases.json 
+    rm releases.json &&\
+    rm hmctl-linux-*
 
 # Swagger settings
 ENV SWAGGER_JSON=/generated_spec.yaml
