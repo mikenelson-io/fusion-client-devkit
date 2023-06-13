@@ -63,32 +63,34 @@ else
   exit
 fi
 
-# HMCTL setup
+# PFCTL setup
 
 if [ $os_name == "Centos" ]; then
   sudo yum -y install wget
 fi
 
 echo -e "${blue}################################"
-echo -e "#         HMCTL setup          #"
+echo -e "#         PFCTL setup          #"
 echo -e "################################${nocolor}"
 
-echo -e "${green}Downloading HMCTL..."
+echo -e "${green}Downloading PFCTL..."
 if [ $os_name == "Centos" ]; then
-  sudo wget -O /usr/bin/hmctl https://github.com/PureStorage-OpenConnect/hmctl/releases/latest/download/hmctl-linux-amd64
+  sudo wget -O ./pfctl.tar.gz https://github.com/PureStorage-OpenConnect/pfctl/releases/latest/download/pfctl-linux-amd64.tar.gz
 else
-  sudo wget -q --show-progress -O /usr/bin/hmctl https://github.com/PureStorage-OpenConnect/hmctl/releases/latest/download/hmctl-linux-amd64
+  sudo wget -q --show-progress -O ./pfctl.tar.gz https://github.com/PureStorage-OpenConnect/pfctl/releases/latest/download/pfctl-linux-amd64.tar.gz
 fi
 
+tar -xf pfctl.tar.gz -C /usr/bin
+rm pfctl.tar.gz
 # check last command exit status
 if [ $? -eq 0 ]; then
-  echo -e "${green}HMCTL download to: /usr/bin/hmctl"
+  echo -e "${green}PFCTL download to: /usr/bin/pfctl"
 else
-  echo -e "${red}HMCTL fail to download"
+  echo -e "${red}PFCTL fail to download"
   exit
 fi
-# give hmctl execute permissions
-sudo chmod +x /usr/bin/hmctl
+# give pfctl execute permissions
+sudo chmod +x /usr/bin/pfctl
 # create folder .pure under home folder
 mkdir -p ~/.pure/
 # create file: ~/.pure/fusion.json (replace if exist)
@@ -106,8 +108,8 @@ echo '{
   }
 }' > ~/.pure/fusion.json
 
-# HMCTL test
-hmctl region list
+# PFCTL test
+pfctl region list
 
 # Python setup
 echo -e "${blue}################################"
