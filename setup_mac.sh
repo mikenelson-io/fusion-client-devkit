@@ -57,28 +57,31 @@ if [[ ! "$(uname -s)" == "Darwin" ]]; then
   exit
 fi
 
-# HMCTL setup
+# PFCTL setup
 
 echo -e "${blue}################################"
-echo -e "#         HMCTL setup          #"
+echo -e "#         PFCTL setup          #"
 echo -e "################################${nocolor}"
 
-echo -e "${green}Downloading HMCTL..."
+echo -e "${green}Downloading PFCTL..."
 if [[ "$(uname -m)" == "arm64" ]]; then
-  sudo curl -L -o /usr/local/bin/hmctl https://github.com/PureStorage-OpenConnect/hmctl/releases/latest/download/hmctl-darwin-arm64
+  sudo curl -L -o ./pfctl.tar.gz https://github.com/PureStorage-OpenConnect/pfctl/releases/latest/download/pfctl-darwin-arm64.tar.gz
 else
-  sudo curl -L -o /usr/local/bin/hmctl https://github.com/PureStorage-OpenConnect/hmctl/releases/latest/download/hmctl-darwin-amd64
+  sudo curl -L -o ./pfctl.tar.gz https://github.com/PureStorage-OpenConnect/pfctl/releases/latest/download/pfctl-darwin-amd64.tar.gz
 fi
+
+tar -xf pfctl.tar.gz -C /usr/local/bin
+rm pfctl.tar.gz
 
 # check last command exit status
 if [ $? -eq 0 ]; then
-  echo -e "${green}HMCTL download to: /usr/local/bin/hmctl"
+  echo -e "${green}PFCTL download to: /usr/local/bin/pfctl"
 else
-  echo -e "${red}HMCTL fail to download"
+  echo -e "${red}PFCTL fail to download"
   exit
 fi
-# give hmctl execute permissions
-sudo chmod +x /usr/local/bin/hmctl
+# give pfctl execute permissions
+sudo chmod +x /usr/local/bin/pfctl
 # create folder .pure under home folder
 mkdir -p ~/.pure/
 
@@ -98,12 +101,13 @@ sudo echo '{
   }
 }' | sudo tee ~/.pure/fusion.json
 
-# HMCTL test
+# PFCTL test
 echo -e "${blue}################################"
-echo -e "#         HMCTL test           #"
+echo -e "#         PFCTL test           #"
 echo -e "################################${nocolor}"
 
-hmctl region list
+# pfctl conflicts with the MacOS Packet Filter Firewall Utility that has the same name
+/usr/local/bin/pfctl region list
 
 # Python setup
 echo -e "${blue}################################"

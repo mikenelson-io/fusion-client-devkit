@@ -4,7 +4,7 @@
 ## Setting up your Fusion DevKit Client
 :warning: _The code and instructions in this repository are **BETA** at this time. This project is currently provided under the SLA of "best effort" support by the Pure Fusion Team. For feature requests and bugs, please use GitHub Issues and we actuvely encourage Pull requests for contributions to the code. We will address issues when resources allow._
 
-This repository is to help you install and configure the necessary tools to connect to and interact with a Fusion environment. The toolsets that are included are the Fusion API Swagger, hmctl CLI tool, Python, Ansible, and Terraform.
+This repository is to help you install and configure the necessary tools to connect to and interact with a Fusion environment. The toolsets that are included are the Fusion API Swagger, pfctl CLI tool, Python, Ansible, and Terraform.
 
 If you would like a high level overview of Pure Fusion, please check out [this Youtube playlist](https://youtube.com/playlist?list=PLZcmbL4tTCUwv8UdACFAQZbkTtEjzob5I).
 
@@ -131,12 +131,12 @@ The Swagger web interface for the Fusion API is included in the container image 
 
 Now you may access swagger via http://127.0.0.1:1234
 
-### HMCTL (pronounced "HM-cuttle")
-HMCTL is the remote CLI utility provided with Fusion.
+### PFCTL (pronounced "P-F-cuttle")
+PFCTL is the remote CLI utility provided with Fusion.
 
-To check if HMCTL was configured correctly, run
+To check if PFCTL was configured correctly, run
 ```
-hmctl version
+pfctl version
 ```
 After this install you should be able to run Consumer commands as seen in [this guide](https://support.purestorage.com/Pure_Fusion/Pure_Fusion_for_Storage_Consumers/Example_CLI_Commands).
 

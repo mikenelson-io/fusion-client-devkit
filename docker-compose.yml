@@ -11,10 +11,10 @@ services:
       - ./ansible:/fusion_ansible
     command:
       /bin/bash -c "cd /workdir &&
-      chmod +x /usr/bin/hmctl &&
+      chmod +x /usr/bin/pfctl &&
       sed -i \"s/API_CLIENT/$$API_CLIENT/g\" /root/.pure/fusion.json &&
       python3 /fusion_python/00_smoke_test.py &&
-      hmctl region list &&
+      pfctl region list &&
       ansible-playbook /fusion_ansible/smoke_test.yml &&
       echo Service ready &&
       tail -f /dev/null"

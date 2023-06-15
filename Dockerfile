@@ -13,7 +13,7 @@
 # You are ready to go!
 # To use python script: docker exec <CONTAINER_ID> python3 samples/python/<PATH_TO_SCRIPT>
 # To use ansible playbook: docker exec <CONTAINER_ID> ansible-playbook samples/ansible/<PATH_TO_PLAYBOOK>
-# To use hmctl: docker exec <CONTAINER_ID> hmctl <COMMAND>
+# To use pfctl: docker exec <CONTAINER_ID> pfctl <COMMAND>
 # You can also enter interactive session: docker exec -it <CONTAINER_ID> /bin/bash
 
 ARG LOCAL_REGISTRY=localhost:5000/ SWAGGER_UI_IMAGE=swagger-ui:v4.15.5
@@ -50,20 +50,20 @@ RUN git clone https://github.com/PureStorage-OpenConnect/ansible-playbook-exampl
     mv ./ansible-playbook-examples/fusion ./samples/ansible &&\
     rm -rf ./ansible-playbook-examples
 
-# Install hmctl 
-RUN curl https://api.github.com/repos/PureStorage-OpenConnect/hmctl/releases > releases.json
-RUN export HMCTL_VERSION=$(grep -m 1 '"tag_name": "v1' releases.json | awk -F'"' '{print $4}') &&\
+# Install pfctl 
+RUN curl https://api.github.com/repos/PureStorage-OpenConnect/pfctl/releases > releases.json
+RUN export PFCTL_VERSION=$(grep -m 1 '"tag_name": "v1' releases.json | awk -F'"' '{print $4}') &&\
     if [ "$TARGETPLATFORM" = "linux/arm64" ] ; then \
-    wget https://github.com/PureStorage-OpenConnect/hmctl/releases/download/$HMCTL_VERSION/hmctl-linux-arm64.tar.gz &&\
-    tar -xf hmctl-linux-arm64.tar.gz -C /bin ; \
+    wget -O ./pfctl.tar.gz https://github.com/PureStorage-OpenConnect/pfctl/releases/download/$PFCTL_VERSION/pfctl-linux-arm64.tar.gz; \
     else \
-    wget https://github.com/PureStorage-OpenConnect/hmctl/releases/download/$HMCTL_VERSION/hmctl-linux-amd64.tar.gz &&\
-    tar -xf hmctl-linux-amd64.tar.gz -C /bin ; fi
-RUN chmod +x /bin/hmctl &&\
+    wget -O ./pfctl.tar.gz https://github.com/PureStorage-OpenConnect/pfctl/releases/download/$PFCTL_VERSION/pfctl-linux-amd64.tar.gz; \
+    fi
+RUN tar -xf pfctl.tar.gz -C /bin &&\
+    chmod +x /bin/pfctl &&\
     mkdir /etc/bash_completion.d &&\
-    hmctl completion bash > /etc/bash_completion.d/hmctl &&\
+    pfctl completion bash > /etc/bash_completion.d/pfctl &&\
     rm releases.json &&\
-    rm hmctl-linux-*
+    rm pfctl.tar.gz
 
 # Swagger settings
 ENV SWAGGER_JSON=/generated_spec.yaml
