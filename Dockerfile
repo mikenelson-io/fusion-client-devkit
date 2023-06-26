@@ -1,20 +1,19 @@
 # How to run
 # 1. Create a directory and name it <CLIENT_NAME_DIR>
 # 2. Copy your private key to <CLIENT_NAME_DIR> with the name: private-key.pem
-# 3. Create one-line file with issuer-id in it. Name it issuer and put it to directory <CLIENT_NAME_DIR>
-# 4. For accesing swagger you need to expose port 8080 in your container with: -p <YOUR_PORT>:8080 flag
-# 5. Now you can run the container with this command:
+# 3. Create one-line file with issuer-id in it. Name it "issuer" with no extension and put it to directory <CLIENT_NAME_DIR>
+# 4. For accesing the Swagger interface, you will need to expose port 8080 in your container with: -p <YOUR_PORT>:8080 flag
+# 5. Now, you can run the container with this command:
 #
-# In detached mode:
+# In non-interactive mode with Swagger:
 # docker run -p <YOUR_PORT>:8080 -v <FULL_PATH_CLIENT_NAME_DIR>/:/<CLIENT_NAME>-client/ -dit <IMAGE_NAME>
-# In interactive session:
+# In interactive mode with Swagger:
 # docker run -p <YOUR_PORT>:8080 -v <FULL_PATH_CLIENT_NAME_DIR>/:/<CLIENT_NAME>-client/ -it --rm <IMAGE_NAME>
 #
-# You are ready to go!
-# To use python script: docker exec <CONTAINER_ID> python3 samples/python/<PATH_TO_SCRIPT>
-# To use ansible playbook: docker exec <CONTAINER_ID> ansible-playbook samples/ansible/<PATH_TO_PLAYBOOK>
-# To use pfctl: docker exec <CONTAINER_ID> pfctl <COMMAND>
-# You can also enter interactive session: docker exec -it <CONTAINER_ID> /bin/bash
+# To execue a pre-configured python example script when starting the container: docker exec <CONTAINER_ID> python3 samples/python/<PATH_TO_SCRIPT>
+# To execute a pre-configured ansible playbook example when starting the container: docker exec <CONTAINER_ID> ansible-playbook samples/ansible/<PATH_TO_PLAYBOOK>
+# To execute a pfctl command when starting the container: docker exec <CONTAINER_ID> pfctl <COMMAND>
+# You can also enter an interactive session to the bash prompt: docker exec -it <CONTAINER_ID> /bin/bash
 
 ARG LOCAL_REGISTRY=localhost:5000/ SWAGGER_UI_IMAGE=swagger-ui:v4.15.5
 
