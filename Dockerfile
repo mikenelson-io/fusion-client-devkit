@@ -15,11 +15,9 @@
 # To execute a pfctl command when starting the container: docker exec <CONTAINER_ID> pfctl <COMMAND>
 # You can also enter an interactive session to the bash prompt: docker exec -it <CONTAINER_ID> /bin/bash
 
-ARG LOCAL_REGISTRY=localhost:5000/ SWAGGER_UI_IMAGE=swagger-ui:v4.15.5
-
 ARG ANSIBLE_PLAYBOOKS_COMMIT=df67f78
 
-FROM ${LOCAL_REGISTRY}${SWAGGER_UI_IMAGE}
+FROM swaggerapi/swagger-ui:v5.1.0
 
 # Install required tools
 RUN apk update && apk add --no-cache wget git\
