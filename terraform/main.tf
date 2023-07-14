@@ -2,7 +2,7 @@ terraform {
   required_providers {
     fusion = {
       source = "PureStorage-OpenConnect/fusion"
-      version = "1.0.0"
+      version = "1.0.15"
     }
   }
 }
@@ -14,7 +14,7 @@ provider "fusion" {
 resource "fusion_tenant_space" "fts" {
   name         = var.tenant_space_name
   display_name = var.tenant_space_name
-  tenant_name  = var.tenant_name
+  tenant       = var.tenant_name
 }
 
 resource "fusion_placement_group" "placement_group" {
