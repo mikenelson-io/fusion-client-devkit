@@ -4,7 +4,7 @@ services:
     build: .
     container_name: purestorage_fusion_lab
     environment:
-      - API_CLIENT=pure1:apikey:1234567891234567
+      - FUSION_ISSUER_ID=pure1:apikey:1234567891234567
     volumes:
       - ./private_key.pem:/workdir/private_key.pem:ro
       - ./python:/fusion_python
@@ -12,7 +12,7 @@ services:
     command:
       /bin/bash -c "cd /workdir &&
       chmod +x /usr/bin/pfctl &&
-      sed -i \"s/API_CLIENT/$$API_CLIENT/g\" /root/.pure/fusion.json &&
+      sed -i \"s/FUSION_ISSUER_ID/$$FUSION_ISSUER_ID/g\" /root/.pure/fusion.json &&
       python3 /fusion_python/00_smoke_test.py &&
       pfctl region list &&
       ansible-playbook /fusion_ansible/smoke_test.yml &&
