@@ -5,5 +5,5 @@
    - name: Collect basic information as part of smoke test
      purestorage.fusion.fusion_info:
       gather_subset: minimum
-      app_id: "{{ ansible_env.API_CLIENT }}"
-      key_file: "{{ ansible_env.PRIV_KEY_FILE }}"
+      issuer_id: "{{ ansible_env.FUSION_ISSUER_ID }}"
+      private_key_file: "{{ ansible_env.FUSION_PRIVATE_KEY_FILE }}"

@@ -15,7 +15,7 @@
 # To execute a pfctl command when starting the container: docker exec <CONTAINER_ID> pfctl <COMMAND>
 # You can also enter an interactive session to the bash prompt: docker exec -it <CONTAINER_ID> /bin/bash
 
-ARG ANSIBLE_PLAYBOOKS_COMMIT=df67f78
+ARG ANSIBLE_PLAYBOOKS_COMMIT=15b267064f095ba737eb23eb7be3bb4c67efa082
 
 FROM swaggerapi/swagger-ui:v5.1.0
 
@@ -32,10 +32,10 @@ RUN rm -rf /var/cache/apk/*
 
 # Install Python SDK and Ansible 
 RUN pip3 install cryptography ansible netaddr
-RUN pip3 install 'purefusion>=1.0.0,<2.0.0'
+RUN pip3 install 'purefusion>=1.2.0,<2.0.0'
 
 # Install ansible's fusion collection
-RUN ansible-galaxy collection install 'purestorage.fusion:>=1.4.0,<2.0.0'
+RUN ansible-galaxy collection install 'purestorage.fusion:>=1.6.0,<2.0.0'
 
 # Get ansible playbooks, terraform plans, and python scripts
 COPY python  ./samples/python

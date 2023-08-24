@@ -4,6 +4,7 @@ import time
 from typing import Optional
 from urllib.parse import urljoin
 import fusion
+from fusion_helpers import configuration
 from collections.abc import Callable
 
 ERROR_CODES = {
@@ -51,8 +52,7 @@ class ResourceNameReserved(Exception):
 
 def get_fusion_config() -> fusion.Configuration:
     """
-    Configure OAuth2 access token for authorization.
-    Retrieve Fusion configuration with custom `issuer_id`, `private_key_file`, `host` and `token_endpoint`.
+    Initializes the configuration.
 
     Raises:
         Exception
@@ -60,34 +60,7 @@ def get_fusion_config() -> fusion.Configuration:
     Returns:
         fusion.Configuration
     """
-    config = fusion.Configuration()
-
-    # required values
-    if (
-        ENV_VAR_FUSION_ISSUER_ID not in os.environ
-        or ENV_VAR_FUSION_PRIVATE_KEY_FILE not in os.environ
-    ) and ENV_VAR_FUSION_ACCESS_TOKEN not in os.environ:
-        raise ValueError(
-            f"Environmental variables neither '{ENV_VAR_FUSION_ISSUER_ID}' and '{ENV_VAR_FUSION_PRIVATE_KEY_FILE} nor '{ENV_VAR_FUSION_ACCESS_TOKEN}' are set!"
-        )
-
-    if ENV_VAR_FUSION_ACCESS_TOKEN in os.environ:
-        config.access_token = os.environ[ENV_VAR_FUSION_ACCESS_TOKEN]
-    if (
-        ENV_VAR_FUSION_ISSUER_ID in os.environ
-        and ENV_VAR_FUSION_PRIVATE_KEY_FILE in os.environ
-    ):
-        config.issuer_id = os.environ[ENV_VAR_FUSION_ISSUER_ID]
-        config.private_key_file = os.environ[ENV_VAR_FUSION_PRIVATE_KEY_FILE]
-
-    # optional values
-    if ENV_VAR_FUSION_API_HOST in os.environ:
-        config.host = urljoin(os.environ[ENV_VAR_FUSION_API_HOST], BASE_PATH)
-    if ENV_VAR_FUSION_TOKEN_ENDPOINT in os.environ:
-        config.token_endpoint = os.environ[ENV_VAR_FUSION_TOKEN_ENDPOINT]
-
-    return config
-
+    return configuration.Configuration()
 
 def wait_operation_finish(
     op_id: str, client: fusion.ApiClient, timeout: Optional[float] = None

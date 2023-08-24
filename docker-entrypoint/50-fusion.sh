@@ -49,8 +49,6 @@ if [ ! -f "/root/.pure/fusion.json" ]; then
 EOF
 fi
 
-export PRIV_KEY_FILE="$(realpath $clientDir)/$keyFile"
-export API_CLIENT="$(cat $clientDir/issuer)"
-export FUSION_ISSUER_ID="$API_CLIENT"
-export FUSION_PRIVATE_KEY_FILE="$PRIV_KEY_FILE"
+export FUSION_PRIVATE_KEY_FILE="$(realpath $clientDir)/$keyFile"
+export FUSION_ISSUER_ID="$(cat $clientDir/issuer)"
 export PS1="fusion-devkit[$clientName]:\w$ "
